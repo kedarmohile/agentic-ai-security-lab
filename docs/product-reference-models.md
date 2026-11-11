@@ -1,96 +1,71 @@
-# Product Reference Models
+# Product Design Principles
 
-AASL v2 deliberately borrows **product patterns**, not branding, code, or proprietary scoring, from successful commercial cybersecurity readiness platforms.
+AASL studies successful patterns in cyber learning, hands-on readiness, skills measurement, and security assessment, but the learner-facing product does not route users to competing training platforms.
 
-Public figures and product claims below were checked on 2026-11-11.
+## Practice before proof
 
-## Hack The Box Enterprise — learning/readiness pattern
+AASL uses the loop:
 
-Official page:
-https://www.hackthebox.com/business/enterprise-platform
+~~~text
+Learn → Drill → Validate → Improve
+~~~
 
-Publicly described model:
+The important product behavior is not passive completion. Learners should execute a control, reproduce a failure safely, inspect evidence, receive feedback, and retry.
 
-```text
-Assess → Build → Drill → Measure → Repeat
-```
+## Evidence before scores
 
-Hack The Box currently reports 5M+ users and 850+ enterprises on its enterprise platform page.
+A score should be traceable to something observable:
 
-AASL borrows the structural lesson:
+- an executed lab;
+- a validated simulation task;
+- a structured interview answer;
+- a target assessment result;
+- a framework-mapped mission.
 
-- establish a baseline;
-- build capability through guided content;
-- drill the capability in realistic scenarios;
-- measure outcomes;
-- repeat based on gaps.
+## Show coverage and gaps separately
 
-AASL does **not** copy HTB content, scoring, visual design, or proprietary exercises.
+Framework visibility is not the same as executable coverage.
 
-## Immersive — framework/evidence pattern
+AASL therefore distinguishes:
 
-Official pages:
-https://www.immersivelabs.com/solutions/cyber-resilience-metrics
-https://www.immersivelabs.com/platform
+- mission-linked coverage;
+- roadmap coverage;
+- current evidence;
+- future content.
 
-Immersive publicly describes:
+This avoids presenting a framework heatmap as complete merely because the framework name appears in the product.
 
-- resilience scoring from real performance data;
-- MITRE ATT&CK coverage;
-- MITRE ATLAS readiness heatmaps;
-- evidence/reporting views;
-- 30%+ of the Fortune 100 as customers.
+## Local-first economics
 
-AASL borrows the structural lesson:
+Routine learning should use inexpensive local/browser execution where possible.
 
-- map capability to recognized frameworks;
-- expose gaps rather than hide them;
-- keep evidence tied to the exercise that produced it;
-- separate readiness measurement from raw activity.
+Cloud infrastructure is reserved for scenarios that genuinely benefit from:
 
-AASL does **not** reproduce Immersive's proprietary score.
+- isolated guest operating systems;
+- multi-host ranges;
+- Windows / directory environments;
+- network appliances;
+- cloud-specific infrastructure.
 
-## MITRE ATLAS — AI attack framework
+That lets AASL keep the Core subscription inexpensive while offering hosted infrastructure separately.
 
-Official page:
-https://atlas.mitre.org/
+## Specialize where AASL is different
 
-ATLAS is the primary attack-framework reference for AASL Academy.
+AASL retains general cybersecurity and AppSec coverage, but invests disproportionately in:
 
-AASL exposes all 16 ATLAS tactics in the Academy coverage map:
+- OWASP Top 10:2025;
+- OWASP Top 10 for LLM Applications 2026;
+- OWASP Top 10 for Agentic Applications 2026;
+- MITRE ATLAS;
+- agent memory, tools, credentials, delegation, RAG, identity, and multi-agent trust.
 
-1. Reconnaissance
-2. Resource Development
-3. AI Attack Adaptation
-4. Initial Access
-5. AI Model Access
-6. Execution
-7. Persistence
-8. Privilege Escalation
-9. Defense Evasion
-10. Credential Access
-11. Discovery
-12. Lateral Movement
-13. Collection
-14. Command and Control
-15. Exfiltration
-16. Impact
+## Competitive research policy
 
-Current AASL labs are marked **mission-linked** only where a current lab exercises a relevant security property. Everything else is explicitly shown as **roadmap**.
+Market research may inform pricing and product design internally.
 
-This is intentional: visibility across the entire framework is not the same as full technique coverage.
+The public learner experience should:
 
-## NIST NICE — Career Lab structure
-
-Official resource:
-https://www.nist.gov/itl/applied-cybersecurity/nice/nice-framework-resource-center
-
-AASL Career Lab uses NICE concepts for breadth and structure.
-
-Current NICE Framework Components v2.2.0 include:
-
-- 42 Work Roles;
-- 5 Work Role Categories;
-- 11 Competency Areas.
-
-AASL job-title tracks are practical interview tracks and are **not** claims of exact one-to-one NICE Work Role equivalence.
+- explain AASL's own value;
+- avoid outbound competitor promotion;
+- use authoritative framework/vendor documentation only when technically necessary;
+- keep pricing comparisons anonymous and category-level rather than sending learners to another training service.

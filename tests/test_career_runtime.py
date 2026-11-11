@@ -285,4 +285,4 @@ def test_career_selects_are_compact_and_actions_remain_visible() -> None:
     assert ".interview-controls-expanded #generate-interview" in css
     assert "grid-column:1 / -1" in css
     assert ".simulation-controls #load-simulation" in css
-    assert "ENGINE v0.9.1" in html
+    assert "ENGINE v0.10" in html

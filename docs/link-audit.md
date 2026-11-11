@@ -29,9 +29,6 @@ The following unique public destinations were checked during the 2026-11-11 audi
 
 - https://github.com/NVIDIA/garak/issues/2453
 - https://github.com/elastic/detection-rules/issues/6722
-- https://www.hackthebox.com/business/enterprise-platform
-- https://www.immersivelabs.com/solutions/cyber-resilience-metrics
-- https://www.immersivelabs.com/platform
 - https://atlas.mitre.org/
 - https://www.nist.gov/itl/applied-cybersecurity/nice/nice-framework-resource-center
 - https://multipass.run/
@@ -62,3 +59,7 @@ When adding a documentation or UI hyperlink:
 3. avoid hard-coded local filesystem links;
 4. keep external URLs stable and canonical where practical;
 5. rerun the explicit external audit before a tagged release.
+
+## Customer-routing policy
+
+Competitor training-platform URLs are intentionally excluded from the learner-facing product and public product-reference documentation. Market benchmarking informs AASL pricing internally without sending learners to competing training services.

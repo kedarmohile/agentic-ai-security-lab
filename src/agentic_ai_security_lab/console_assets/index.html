@@ -19,6 +19,7 @@
     <nav id="nav">
       <div class="nav-group">START</div>
       <button class="nav-item active" data-view="start"><span>→</span>Start Here</button>
+      <button class="nav-item" data-view="pricing"><span>$</span>Pricing</button>
       <div class="nav-group">COMMAND</div>
       <button class="nav-item" data-view="command"><span>⌁</span>Command Center</button>
       <div class="nav-group">OPERATIONS</div>
@@ -32,7 +33,7 @@
       <button class="nav-item" data-view="evidence"><span>≡</span>Evidence</button>
     </nav>
     <div class="sidebar-foot">
-      <div class="mono tiny">ENGINE v0.9.1</div>
+      <div class="mono tiny">ENGINE v0.10</div>
       <div class="tiny muted">No seeded telemetry. Findings come only from executed deterministic labs.</div>
     </div>
   </aside>
@@ -42,6 +43,7 @@
       <div><div class="eyebrow">AGENTIC AI SECURITY OPERATIONS</div><h1 id="page-title">Start Here</h1></div>
       <div class="top-actions">
         <button id="command-button" class="command-trigger"><span>⌘</span> Search / Run command <kbd>⌘K</kbd></button>
+        <button id="pricing-button" class="button subtle">Pricing</button>
         <button id="run-pack" class="button subtle">Run Hunt Pack</button>
         <button id="open-runner" class="button primary">+ Run Lab</button>
       </div>
@@ -103,10 +105,10 @@
 
         <aside class="reference-rail">
           <article class="panel reference-card">
-            <div class="label">COMMERCIAL REFERENCE</div>
-            <h3>What successful cyber-readiness products get right</h3>
+            <div class="label">AASL PRODUCT PRINCIPLES</div>
+            <h3>Built for evidence, depth, and repeatable mastery</h3>
             <div id="commercial-references" class="reference-list"></div>
-            <div class="reference-note">Reference patterns only. No affiliation or endorsement is implied.</div>
+            <div class="reference-note">No outbound training-platform links are shown in the learner experience.</div>
           </article>
           <article class="panel reference-card">
             <div class="label">AASL DIFFERENTIATOR</div>
@@ -433,6 +435,55 @@
         <div class="panel-head"><div><div class="label">TARGET DETAIL</div><div class="subtle-copy">Capabilities, compatible labs, adapter state, and target runs</div></div></div>
         <div id="target-detail" class="empty-state">Select or register a target.</div>
       </article>
+    </section>
+
+
+    <section id="view-pricing" class="view">
+      <div class="pricing-hero panel">
+        <div>
+          <div class="eyebrow">AASL PRICING</div>
+          <h2>Start free. Go deep for $9. Add hosted labs only when you need them.</h2>
+          <p>Core keeps learning and local practice inexpensive. Pro adds bounded hosted compute so the platform stays sustainable without turning cloud infrastructure into an unlimited liability.</p>
+        </div>
+        <div class="pricing-status">
+          <div class="label">LAUNCH MODEL</div>
+          <strong>Local-first economics</strong>
+          <span>Billing and subscription enforcement are not enabled in the current open-source local build.</span>
+        </div>
+      </div>
+
+      <div class="billing-toggle" role="group" aria-label="Billing period">
+        <button class="billing-option active" data-billing="monthly">Monthly</button>
+        <button class="billing-option" data-billing="annual">Annual <span>save more</span></button>
+      </div>
+
+      <div id="pricing-cards" class="pricing-grid"></div>
+
+      <article class="panel pricing-compare-panel">
+        <div class="panel-head">
+          <div><div class="label">COMPARE PLANS</div><div class="subtle-copy">A simple ladder: free exploration, affordable mastery, then hosted infrastructure.</div></div>
+          <span class="tag neutral">USD</span>
+        </div>
+        <div id="pricing-compare" class="pricing-compare"></div>
+      </article>
+
+      <div class="pricing-notes">
+        <article class="panel">
+          <div class="label">WHAT “UNLIMITED” MEANS</div>
+          <h3>Learning can be unlimited. Cloud compute cannot.</h3>
+          <p>Core includes unlimited learning content and local practice. Pro includes unlimited lab launches with one concurrent hosted environment and a defined hosted-compute allowance.</p>
+        </article>
+        <article class="panel">
+          <div class="label">WHY THE PRICE STAYS LOW</div>
+          <h3>Use local resources for ordinary practice.</h3>
+          <p>Browser exercises, local evaluation, local VMs, and Target Lab keep routine usage inexpensive. Hosted infrastructure is reserved for the exercises that genuinely need it.</p>
+        </article>
+        <article class="panel">
+          <div class="label">HOSTED LABS</div>
+          <h3>Pro is designed for the cloud rollout.</h3>
+          <p>The hosted-lab entitlement is shown now so pricing is stable, but cloud VM provisioning remains a roadmap feature until the sandbox provider is deployed.</p>
+        </article>
+      </div>
     </section>
 
     <section id="view-graph" class="view">
