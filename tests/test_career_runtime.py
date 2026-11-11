@@ -273,3 +273,16 @@ def test_genai_path_can_be_exercised_without_network(
     assert result["mastered"] is True
     assert result["improved_answer"] == "Improved answer"
     assert sum(result["rubric_weights"].values()) == 100
+
+
+
+def test_career_selects_are_compact_and_actions_remain_visible() -> None:
+    css = Path("src/agentic_ai_security_lab/console_assets/styles.css").read_text(encoding="utf-8")
+    html = Path("src/agentic_ai_security_lab/console_assets/index.html").read_text(encoding="utf-8")
+
+    assert ".interview-controls select" in css
+    assert "font-size:var(--type-label)" in css
+    assert ".interview-controls-expanded #generate-interview" in css
+    assert "grid-column:1 / -1" in css
+    assert ".simulation-controls #load-simulation" in css
+    assert "ENGINE v0.9.1" in html
