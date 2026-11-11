@@ -25,7 +25,7 @@ def _asset_root() -> Any:
 
 
 class ConsoleHandler(BaseHTTPRequestHandler):
-    server_version = "AASLConsole/0.10"
+    server_version = "AASLConsole/0.10.1"
 
     @property
     def store(self) -> RunStore:
