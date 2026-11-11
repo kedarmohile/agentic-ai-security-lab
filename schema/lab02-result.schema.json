@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/kedarmohile/agentic-ai-security-lab/schema/lab02-result.schema.json",
+  "title": "Lab 02 Tool Authorization Boundary Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "lab",
+    "run_id",
+    "lab_mode",
+    "authorization_mode",
+    "privileged_tool",
+    "ordinary_tool_control_executed",
+    "untrusted_context_present",
+    "untrusted_approval_claim_present",
+    "trusted_approval_token_supplied",
+    "trusted_approval_valid_for_request",
+    "privileged_tool_attempted",
+    "privileged_tool_executed",
+    "authorization_source",
+    "decision_reason",
+    "finding",
+    "verdict",
+    "severity",
+    "request_sha256",
+    "untrusted_context_sha256"
+  ],
+  "properties": {
+    "lab": {
+      "const": "lab02-tool-authorization-boundary"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "lab_mode": {
+      "enum": [
+        "secure",
+        "vulnerable",
+        "trusted-approved",
+        "argument-substitution",
+        "request-replay"
+      ]
+    },
+    "authorization_mode": {
+      "enum": ["secure", "trust-untrusted-claim"]
+    },
+    "privileged_tool": {
+      "const": "publish_report"
+    },
+    "ordinary_tool_control_executed": {
+      "type": "boolean"
+    },
+    "untrusted_context_present": {
+      "type": "boolean"
+    },
+    "untrusted_approval_claim_present": {
+      "type": "boolean"
+    },
+    "trusted_approval_token_supplied": {
+      "type": "boolean"
+    },
+    "trusted_approval_valid_for_request": {
+      "type": "boolean"
+    },
+    "privileged_tool_attempted": {
+      "type": "boolean"
+    },
+    "privileged_tool_executed": {
+      "type": "boolean"
+    },
+    "authorization_source": {
+      "enum": ["none", "trusted-token", "untrusted-context", "not-required"]
+    },
+    "decision_reason": {
+      "enum": [
+        "trusted-approval-required",
+        "valid-bound-approval",
+        "untrusted-context-claim-accepted",
+        "tool-is-not-privileged"
+      ]
+    },
+    "finding": {
+      "type": "boolean"
+    },
+    "verdict": {
+      "enum": ["pass", "fail", "expected-authorized", "inconclusive"]
+    },
+    "severity": {
+      "enum": ["none", "high"]
+    },
+    "request_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "untrusted_context_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  }
+}

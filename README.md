@@ -9,7 +9,7 @@ The goal of this repository is to turn AI-security claims into **small, inspecta
 | Lab | Security question | Status |
 | --- | --- | --- |
 | [Lab 01 — Cross-Actor Persistent Memory Isolation](docs/lab01-threat-model.md) | Can data remembered for Actor A cross the authorization boundary and surface to Actor B? | Implemented |
-| Lab 02 — Tool Authorization Boundary | Can untrusted context influence a privileged tool action? | Planned |
+| [Lab 02 — Tool Authorization Boundary](docs/lab02-threat-model.md) | Can untrusted context satisfy or bypass approval for a privileged tool action? | Implemented |
 | Lab 03 — Retrieval / Memory Poisoning | Can persisted untrusted content influence later benign interactions? | Planned |
 
 ## Lab 01: Cross-Actor Persistent Memory Isolation
@@ -64,11 +64,51 @@ pytest
 
 The complete result includes a SHA-256 fingerprint of the canary, not the canary itself. See [the result schema](schema/lab01-result.schema.json).
 
-## Why the controls matter
+### Why Lab 01 controls matter
 
 A cross-actor test is only meaningful if the positive control proves the target actually persisted Actor A's value. If Actor A cannot recall its own value in a new session, the lab reports **inconclusive** rather than claiming the isolation control worked.
 
 Likewise, an intentionally shared memory namespace is modeled separately from a broken isolation boundary. The same observed sharing is not automatically called a vulnerability when the policy explicitly says sharing is expected.
+
+
+## Lab 02: Tool Authorization Boundary
+
+Agentic systems often combine untrusted context with tools that can perform higher-impact actions. The core security question is not whether the model *mentions* a tool, but whether untrusted data can satisfy the authorization condition required to execute it.
+
+Lab 02 models an indirect-injection path without executing any real external action:
+
+1. A benign retrieved note contains an untrusted claim that `publish_report` is already approved.
+2. The agent attempts the privileged tool call.
+3. A secure policy ignores the untrusted claim and requires a cryptographic approval token.
+4. The token is bound to the **actor, request ID, tool name, and exact arguments**.
+5. The runtime records the authorization decision and simulates execution only when the policy allows it.
+
+### Security invariant
+
+> Untrusted context may influence task data, but it must not create, substitute for, or broaden authorization for a privileged tool action.
+
+### Run locally
+
+```bash
+# Untrusted approval claim is denied
+agentic-ai-tool-authorization --mode secure
+
+# Deliberately vulnerable policy trusts the untrusted approval claim
+agentic-ai-tool-authorization --mode vulnerable
+
+# Valid trusted approval for the exact action
+agentic-ai-tool-authorization --mode trusted-approved
+
+# Approval token is valid for different arguments and must not carry over
+agentic-ai-tool-authorization --mode argument-substitution
+
+# Approval token is replayed from another request and must not carry over
+agentic-ai-tool-authorization --mode request-replay
+```
+
+The lab never invokes a shell, network endpoint, external API, or real privileged system. Its tool runtime is an in-memory decision ledger designed specifically to test the authorization boundary.
+
+See the [Lab 02 threat model](docs/lab02-threat-model.md) and [result schema](schema/lab02-result.schema.json).
 
 ## Repository principles
 
