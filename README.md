@@ -243,6 +243,8 @@ See the [Lab 05 threat model](docs/lab05-threat-model.md) and [result schema](sc
 
 The repository includes a local **Agentic AI Security Console** for orchestrating Labs 01-05 as hunts, preserving run history, generating findings from deterministic lab results, and presenting attack-path evidence.
 
+**Objective:** determine whether an agentic application can cross a security boundary that should remain enforced—memory, tool approval, retrieval trust, delegated authority, or credential scope.
+
 Install the repo in editable mode, then run:
 
     python -m pip install -e ".[dev]"
@@ -263,7 +265,9 @@ The console includes:
 - command palette (`Cmd/Ctrl + K`)
 - no external frontend CDN or cloud dependency
 
-See [Security Console Architecture](docs/security-console.md) and [Scoring Model](docs/console-scoring.md).
+See [Security Console Architecture](docs/security-console.md), [Scoring Model](docs/console-scoring.md), and [Test Your Own Application](docs/test-your-app.md).
+
+The console starts with a **Start Here** page that explains the workflow. The built-in console runs the deterministic reference harnesses; testing your own code requires connecting your application boundary through the documented adapter/wrapper pattern. Lab 01 is directly pluggable today.
 ## Repository principles
 
 - **Reproducible over impressive** — tests should run without proprietary infrastructure where possible.

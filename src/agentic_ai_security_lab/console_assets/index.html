@@ -17,8 +17,10 @@
     </div>
     <div class="env-chip"><span class="status-dot"></span> LOCAL / EVIDENCE MODE</div>
     <nav id="nav">
+      <div class="nav-group">START</div>
+      <button class="nav-item active" data-view="start"><span>→</span>Start Here</button>
       <div class="nav-group">COMMAND</div>
-      <button class="nav-item active" data-view="command"><span>⌁</span>Command Center</button>
+      <button class="nav-item" data-view="command"><span>⌁</span>Command Center</button>
       <div class="nav-group">OPERATIONS</div>
       <button class="nav-item" data-view="hunts"><span>⌖</span>Hunts</button>
       <button class="nav-item" data-view="findings"><span>⚠</span>Findings <b id="nav-findings">0</b></button>
@@ -37,7 +39,7 @@
 
   <main class="main">
     <header class="topbar">
-      <div><div class="eyebrow">AGENTIC AI SECURITY OPERATIONS</div><h1 id="page-title">Command Center</h1></div>
+      <div><div class="eyebrow">AGENTIC AI SECURITY OPERATIONS</div><h1 id="page-title">Start Here</h1></div>
       <div class="top-actions">
         <button id="command-button" class="command-trigger"><span>⌘</span> Search / Run command <kbd>⌘K</kbd></button>
         <button id="run-pack" class="button subtle">Run Hunt Pack</button>
@@ -45,7 +47,131 @@
       </div>
     </header>
 
-    <section id="view-command" class="view active">
+    <section id="view-start" class="view active">
+      <div class="start-hero panel">
+        <div class="start-hero-copy">
+          <div class="eyebrow">WHAT THIS PLATFORM DOES</div>
+          <h2>Test whether an AI agent crosses security boundaries it should not cross.</h2>
+          <p>
+            The objective is to turn agentic-AI security claims into reproducible evidence.
+            The five labs test memory isolation, tool authorization, retrieval poisoning,
+            delegated authority, and credential scope. Start with the built-in deterministic
+            harnesses, then connect the same test pattern to your own application.
+          </p>
+          <div class="start-actions">
+            <button class="button primary" data-jump="labs">Run a Built-in Lab</button>
+            <button class="button subtle" data-scroll-target="test-your-app">Test Your Own App</button>
+          </div>
+        </div>
+        <div class="objective-box">
+          <div class="label">THE QUESTION WE ARE ANSWERING</div>
+          <div class="objective-question">Can this agentic system violate an identity, memory, retrieval, tool, delegation, or credential boundary?</div>
+          <div class="objective-foot">A finding requires evidence from an executed scenario—not a policy statement or model opinion.</div>
+        </div>
+      </div>
+
+      <div class="start-grid">
+        <article class="panel start-card">
+          <div class="step-number">01</div>
+          <h3>Understand the baseline</h3>
+          <p>Run a <b>secure</b> scenario first. This proves the test harness and positive controls work.</p>
+        </article>
+        <article class="panel start-card">
+          <div class="step-number">02</div>
+          <h3>Run the attack condition</h3>
+          <p>Run the matching <b>vulnerable</b> scenario. Compare what changed at the trust boundary.</p>
+        </article>
+        <article class="panel start-card">
+          <div class="step-number">03</div>
+          <h3>Inspect evidence</h3>
+          <p>Open the timeline, scores, structured result, and finding. Evidence confidence drops when controls fail.</p>
+        </article>
+        <article class="panel start-card">
+          <div class="step-number">04</div>
+          <h3>Apply it to your code</h3>
+          <p>Wrap your application at the same boundary and run the invariant against your real memory, tool, retrieval, delegation, or identity path.</p>
+        </article>
+      </div>
+
+      <article class="panel workflow-panel">
+        <div class="panel-head">
+          <div>
+            <div class="label">FIRST 10 MINUTES</div>
+            <div class="subtle-copy">The fastest way to understand how the console works</div>
+          </div>
+        </div>
+        <div class="workflow-steps">
+          <div class="workflow-step"><b>1</b><div><strong>Open Labs</strong><span>Pick Lab 05: Agent Credential Scope Leakage.</span></div></div>
+          <div class="workflow-arrow">→</div>
+          <div class="workflow-step"><b>2</b><div><strong>Run secure</strong><span>Confirm no parent credential crosses the child-agent boundary.</span></div></div>
+          <div class="workflow-arrow">→</div>
+          <div class="workflow-step"><b>3</b><div><strong>Run vulnerable</strong><span>Observe the same credential accepted by the wrong agent.</span></div></div>
+          <div class="workflow-arrow">→</div>
+          <div class="workflow-step"><b>4</b><div><strong>Open Finding</strong><span>Review timeline, evidence, Control/Exposure/Evidence scores, and create a Case.</span></div></div>
+        </div>
+      </article>
+
+      <article id="test-your-app" class="panel target-panel">
+        <div class="panel-head">
+          <div>
+            <div class="label">TEST YOUR OWN APPLICATION</div>
+            <div class="subtle-copy">How the reference labs become security tests for your code</div>
+          </div>
+          <span class="tag neutral">BYO TARGET</span>
+        </div>
+        <div class="target-intro">
+          <p>
+            <b>Important:</b> the current console executes the built-in deterministic harnesses.
+            It does not automatically scan an arbitrary repository. To test your own code, connect
+            your application to the relevant lab boundary using an adapter. Lab 01 already exposes
+            a direct memory-backend contract; the same adapter pattern is documented for the other boundaries.
+          </p>
+        </div>
+        <div class="target-grid">
+          <div class="target-card">
+            <div class="lab-domain">MEMORY · LAB 01</div>
+            <h3>Persistent memory</h3>
+            <p>Implement <code>remember(context, key, value)</code> and <code>recall(context, key)</code>, then pass your backend to <code>run_memory_isolation_lab()</code>.</p>
+          </div>
+          <div class="target-card">
+            <div class="lab-domain">TOOLS · LAB 02</div>
+            <h3>Privileged tool execution</h3>
+            <p>Map your approval check and tool invocation to the same invariant: no privileged execution without trusted approval bound to the exact action.</p>
+          </div>
+          <div class="target-card">
+            <div class="lab-domain">RAG · LAB 03</div>
+            <h3>Retrieval pipeline</h3>
+            <p>Inject a benign untrusted document, run a later clean query, and record ingestion → retrieval → directive exposure → downstream influence separately.</p>
+          </div>
+          <div class="target-card">
+            <div class="lab-domain">IDENTITY · LAB 04/05</div>
+            <h3>Delegation & credentials</h3>
+            <p>Map principal, agent, resource, request, audience, and credential scope into the same exact-binding checks used by the reference harness.</p>
+          </div>
+        </div>
+        <div class="target-command">
+          <div>
+            <div class="label">START WITH THE INTEGRATION GUIDE</div>
+            <code>docs/test-your-app.md</code>
+          </div>
+          <div class="target-command-note">The guide includes a working Lab 01 adapter example and patterns for the remaining labs.</div>
+        </div>
+      </article>
+
+      <article class="panel explain-panel">
+        <div class="panel-head"><div><div class="label">WHAT EACH AREA MEANS</div></div></div>
+        <div class="explain-grid">
+          <div><strong>Labs</strong><span>Security invariants and deterministic scenarios.</span></div>
+          <div><strong>Hunts</strong><span>Step-by-step investigations built around a hypothesis.</span></div>
+          <div><strong>Runs</strong><span>Every execution and its scores/verdict.</span></div>
+          <div><strong>Findings</strong><span>Only runs where evidence supports a security failure.</span></div>
+          <div><strong>Evidence</strong><span>Structured raw result and control context.</span></div>
+          <div><strong>Cases</strong><span>Investigation records created from confirmed findings.</span></div>
+        </div>
+      </article>
+    </section>
+
+    <section id="view-command" class="view">
       <div class="posture-grid">
         <article class="panel posture-panel">
           <div class="panel-head">

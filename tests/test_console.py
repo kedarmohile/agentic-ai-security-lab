@@ -94,6 +94,9 @@ def test_console_assets_are_served_without_external_cdn(tmp_path: Path) -> None:
         with urllib.request.urlopen(base + "/app.js") as response:
             js = response.read().decode("utf-8")
         assert "AASL Security Console" in html
+        assert "Start Here" in html
+        assert "WHAT THIS PLATFORM DOES" in html
+        assert "TEST YOUR OWN APPLICATION" in html
         assert "Command Center" in html
         assert "Hunts" in html
         assert "Attack Graph" in html
@@ -103,3 +106,21 @@ def test_console_assets_are_served_without_external_cdn(tmp_path: Path) -> None:
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
+
+
+def test_console_readability_overrides_are_present() -> None:
+    from importlib.resources import files
+
+    css = files("agentic_ai_security_lab").joinpath("console_assets", "styles.css").read_text(encoding="utf-8")
+
+    assert "html { font-size: 16px; }" in css
+    assert "body { font-size: 15px;" in css
+    assert ".hunt-title { font-size: 14px;" in css
+    assert ".json-block { font-size: 12px;" in css
+
+
+def test_target_integration_guide_and_example_ship_with_package_repo() -> None:
+    from pathlib import Path
+
+    assert Path("docs/test-your-app.md").is_file()
+    assert Path("examples/targets/lab01_memory_adapter.py").is_file()
