@@ -160,6 +160,10 @@ The test suite now checks:
 - roadmap pricing is not presented as live;
 - dependency-gated VM / voice / evaluator features preserve fallback messaging.
 
-## Remaining test gap
+## Browser end-to-end release gate
 
-This is still a static + API contract audit. A production hosted release should add a real browser end-to-end suite such as Playwright that launches the console and physically clicks every control. That browser E2E layer is not yet implemented.
+A Playwright/Chromium acceptance workflow is now included under `.github/workflows/ui-acceptance.yml` and `tests_e2e/`.
+
+It launches the real local console and exercises primary navigation, command palette, lab drawer, runs/evidence/findings/cases, pricing controls and CTAs, Career level/session evaluation, Simulation Range, dependency-gated VM feedback, and Target Lab local registration/scaffold behavior.
+
+External-network-dependent actions such as cloning an arbitrary GitHub target are still treated as dependency-gated rather than being made a release-blocking third-party network test.
