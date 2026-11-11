@@ -10,7 +10,7 @@ The goal of this repository is to turn AI-security claims into **small, inspecta
 | --- | --- | --- |
 | [Lab 01 — Cross-Actor Persistent Memory Isolation](docs/lab01-threat-model.md) | Can data remembered for Actor A cross the authorization boundary and surface to Actor B? | Implemented |
 | [Lab 02 — Tool Authorization Boundary](docs/lab02-threat-model.md) | Can untrusted context satisfy or bypass approval for a privileged tool action? | Implemented |
-| Lab 03 — Retrieval / Memory Poisoning | Can persisted untrusted content influence later benign interactions? | Planned |
+| [Lab 03 — Retrieval / Memory Poisoning](docs/lab03-threat-model.md) | Can persisted untrusted content retrieved later change a benign answer? | Implemented |
 
 ## Lab 01: Cross-Actor Persistent Memory Isolation
 
@@ -109,6 +109,43 @@ agentic-ai-tool-authorization --mode request-replay
 The lab never invokes a shell, network endpoint, external API, or real privileged system. Its tool runtime is an in-memory decision ledger designed specifically to test the authorization boundary.
 
 See the [Lab 02 threat model](docs/lab02-threat-model.md) and [result schema](schema/lab02-result.schema.json).
+
+
+## Lab 03: Retrieval / Memory Poisoning
+
+Persistent RAG and agent-memory systems can ingest content in one phase and retrieve it much later in a different interaction. Lab 03 tests that delayed trust boundary with a benign marker rather than harmful instructions.
+
+The lab separates the attack chain into distinct stages:
+
+1. A clean-corpus control proves the expected answer is available.
+2. A synthetic untrusted document is persisted.
+3. A later benign query retrieves documents from the corpus.
+4. The lab records whether the poison was retrieved.
+5. It separately records whether the downstream answer changed to the poison marker.
+
+### Security invariant
+
+> Retrieved untrusted content may provide data, but it must not become an instruction authority that overrides trusted facts or changes downstream behavior.
+
+### Run locally
+
+```bash
+# Clean corpus control
+agentic-ai-retrieval-poisoning --mode baseline
+
+# Poison is retrieved, but provenance-aware handling preserves the trusted answer
+agentic-ai-retrieval-poisoning --mode secure
+
+# Deliberately vulnerable pipeline follows the retrieved untrusted directive
+agentic-ai-retrieval-poisoning --mode vulnerable
+
+# Poison is persisted but irrelevant to the later query
+agentic-ai-retrieval-poisoning --mode poison-not-retrieved
+```
+
+The poison marker is intentionally benign (`BLUEBIRD-42`). No external model, vector database, network endpoint, or commercial service is used. Retrieval and response behavior are deterministic so the causal chain is inspectable and regression-testable.
+
+See the [Lab 03 threat model](docs/lab03-threat-model.md) and [result schema](schema/lab03-result.schema.json).
 
 ## Repository principles
 
