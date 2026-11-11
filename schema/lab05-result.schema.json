@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/kedarmohile/agentic-ai-security-lab/schema/lab05-result.schema.json",
+  "title": "Lab 05 Agent Credential Scope Leakage Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "lab",
+    "run_id",
+    "lab_mode",
+    "verifier_mode",
+    "owner_control_succeeded",
+    "parent_credential_exposed_to_child",
+    "child_received_credential",
+    "child_credential_is_parent_token",
+    "credential_exactly_valid_for_child_request",
+    "child_action_attempted",
+    "child_action_executed",
+    "decision_reason",
+    "exposure_finding",
+    "unauthorized_use_finding",
+    "finding",
+    "verdict",
+    "severity",
+    "request_sha256",
+    "child_credential_sha256",
+    "parent_credential_sha256"
+  ],
+  "properties": {
+    "lab": {
+      "const": "lab05-agent-credential-scope-leakage"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "lab_mode": {
+      "enum": [
+        "secure",
+        "leaked-bound",
+        "vulnerable",
+        "derived-child",
+        "audience-substitution",
+        "resource-substitution",
+        "request-replay"
+      ]
+    },
+    "verifier_mode": {
+      "enum": ["strict", "bearer-scope-only"]
+    },
+    "owner_control_succeeded": {
+      "type": "boolean"
+    },
+    "parent_credential_exposed_to_child": {
+      "type": "boolean"
+    },
+    "child_received_credential": {
+      "type": "boolean"
+    },
+    "child_credential_is_parent_token": {
+      "type": "boolean"
+    },
+    "credential_exactly_valid_for_child_request": {
+      "type": "boolean"
+    },
+    "child_action_attempted": {
+      "type": "boolean"
+    },
+    "child_action_executed": {
+      "type": "boolean"
+    },
+    "decision_reason": {
+      "enum": [
+        "missing-or-invalid-credential",
+        "credential-scope-mismatch",
+        "credential-subject-mismatch",
+        "bearer-scope-accepted",
+        "strict-scope-accepted"
+      ]
+    },
+    "exposure_finding": {
+      "type": "boolean"
+    },
+    "unauthorized_use_finding": {
+      "type": "boolean"
+    },
+    "finding": {
+      "type": "boolean"
+    },
+    "verdict": {
+      "enum": ["pass", "fail", "expected-authorized", "inconclusive"]
+    },
+    "severity": {
+      "enum": ["none", "medium", "high"]
+    },
+    "request_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "child_credential_sha256": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "parent_credential_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  }
+}
