@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from .orchestration import LABS, RunStore
+from .security_frameworks import framework_catalog
 
 
 @dataclass(frozen=True)
@@ -243,6 +244,7 @@ def academy_catalog() -> dict[str, Any]:
         ],
         "atlas_tactics": list(ATLAS_TACTICS),
         "references": list(COMMERCIAL_REFERENCES),
+        "frameworks": framework_catalog(),
     }
 
 
@@ -303,6 +305,7 @@ def career_catalog() -> dict[str, Any]:
         },
         "roles": list(ROLE_TRACKS),
         "levels": ("entry", "mid", "senior", "principal", "manager", "executive"),
+        "frameworks": framework_catalog(),
     }
 
 

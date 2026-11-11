@@ -1,12 +1,39 @@
 # Career Lab
 
-Career Lab is AASL's role-based cybersecurity interview-preparation experience.
+Career Lab combines two distinct preparation modes:
 
-## Objective
+1. **Interview Studio** — answer role-specific interview questions and receive a score, strengths, missing concepts, an exemplar answer, and constructive improvement guidance.
+2. **Simulation Range** — practice the work itself through synthetic logs, code, configurations, policies, incident timelines, sensitive-data artifacts, search tooling, hints, and task validation.
 
-Prepare for a security interview from multiple angles rather than memorizing isolated questions.
+The goal is not Q&A memorization. It is to prepare for both the interview **and** the hands-on reasoning expected in the role.
 
-Each generated session covers some combination of:
+## Security specialization
+
+AASL keeps broad cybersecurity coverage, but specializes deeply in **GenAI and Agentic AI security**.
+
+Career scenarios can be mapped through four complementary lenses:
+
+- **OWASP Top 10:2025** — conventional web/application security risks;
+- **OWASP Top 10 for LLM Applications 2026** — LLM / GenAI application risks;
+- **OWASP Top 10 for Agentic Applications 2026** — autonomous-agent risk classes;
+- **MITRE ATLAS** — AI adversary behaviors, tactics, and techniques.
+
+A scenario only displays mappings that are genuinely relevant. Traditional AppSec scenarios are not forced into AI-specific categories.
+
+See [Security Framework Stack](security-frameworks.md).
+
+## Interview Studio
+
+Choose a role and seniority:
+
+- Entry
+- Mid
+- Senior
+- Principal
+- Manager
+- Executive
+
+Generated questions span:
 
 - technical depth;
 - architecture;
@@ -19,22 +46,86 @@ Each generated session covers some combination of:
 - scale;
 - leadership.
 
-## Seniority levels
+Each question includes an answer editor and **Evaluate Answer** action.
 
-Career Lab supports:
+The deterministic evaluation returns:
 
-- Entry
-- Mid
-- Senior
-- Principal
-- Manager
-- Executive
+- score;
+- qualitative rating;
+- strengths;
+- specific missing concepts;
+- constructive improvement points;
+- an exemplar answer / response shape;
+- a recommended next step.
 
-Principal, manager, and executive sessions include additional scale and leadership questions.
+The evaluator is guidance, not a hiring decision.
+
+## Simulation Range
+
+Simulation Range is role-specific.
+
+Examples include:
+
+- SOC / threat hunting — correlate suspicious authentication and privilege events;
+- detection engineering — design a behavior-based correlation from synthetic telemetry;
+- DFIR — scope endpoint execution, persistence, network, and lateral-access evidence;
+- threat intelligence — distinguish evidence, confidence, and unsupported attribution;
+- malware analysis — interpret a synthetic sandbox trace;
+- AppSec — identify BOLA/IDOR and design a regression test;
+- red team / pentest — reason through a deliberately synthetic authorization bypass;
+- cloud / IAM — reduce an over-broad policy to least privilege;
+- SOAR — design a safe containment playbook with approval, idempotency, and rollback;
+- sensitive-data discovery — build a basic search strategy and classify secrets/PII-like test data;
+- vulnerability management — prioritize using exploitability, exposure, and asset criticality;
+- security architecture — redesign agent/tool/credential trust boundaries;
+- GRC / leadership — make a time-bound security exception decision;
+- cryptography — review weak protocol/key lifecycle configuration;
+- AI security — investigate prompt-injection-to-tool-execution and authorization-boundary failures.
+
+## Search workbench and hints
+
+Each simulation can expose synthetic artifacts directly in the website.
+
+The built-in search workbench lets learners search those artifacts without leaving Career Lab.
+
+Hints are progressive. Using a hint reduces the final task score so the learner can distinguish assisted completion from independent recall.
+
+## Portable VM labs
+
+Some exercises benefit from a real guest OS.
+
+AASL uses **Git-stored VM blueprints**, not VM disk images.
+
+The repository contains:
+
+```text
+src/agentic_ai_security_lab/vm_blueprints/
+├── linux-soc-dfir/
+├── linux-appsec/
+└── linux-cloud-iam/
+```
+
+Each blueprint contains small text files:
+
+- `lab.json`;
+- `cloud-init.yaml`;
+- synthetic lab artifacts.
+
+The local console uses Multipass to materialize an Ubuntu guest appropriate for the host platform.
+
+Supported host families:
+
+- macOS;
+- Windows;
+- Linux.
+
+The portable reset mechanism is **destroy and recreate from the Git blueprint**. Snapshot support is optional and never required for correctness.
+
+See [Portable VM Labs](vm-labs.md).
 
 ## Current role tracks
 
-Career Lab currently includes practical tracks for:
+Career Lab currently includes:
 
 - SOC Analyst
 - Detection Engineer
@@ -67,37 +158,34 @@ Career Lab currently includes practical tracks for:
 
 Career Lab uses NIST NICE concepts for breadth and structure.
 
-The current framework context exposed in the product is:
+The product currently exposes:
 
 - NICE Framework Components v2.2.0;
 - 42 Work Roles;
 - 5 Work Role Categories;
 - 11 Competency Areas.
 
-AASL's role tracks are practical job-title interview tracks. They are not presented as one-to-one NICE Work Roles.
+AASL's practical job-title tracks are not claimed as one-to-one NICE Work Roles.
 
-## Session generation
+## Local attempt history
 
-The Career Lab API accepts:
+Interview evaluations and simulation evaluations are stored locally in:
 
-```json
-{
-  "role_id": "ai-security",
-  "level": "principal"
-}
+```text
+career_attempts.jsonl
 ```
 
-and returns:
+under the configured AASL state directory.
 
-- selected role metadata;
-- selected seniority;
-- multi-angle interview questions;
-- a scorecard covering correctness, depth, structure, risk judgment, practicality, metrics, and communication.
+No external assessment service is required.
 
 ## Relationship to Academy
 
-Academy trains hands-on security reasoning.
+Academy provides structured learning paths and evidence-gated missions.
 
-Career Lab tests whether the user can explain, architect, prioritize, measure, and communicate the same kinds of security decisions in an interview setting.
+Career Lab tests two additional dimensions:
 
-The two experiences are intentionally separate but complementary.
+- can the learner **explain** the security decision in an interview?
+- can the learner **perform the underlying security reasoning** in a realistic synthetic exercise?
+
+The same framework language and security invariants connect both experiences.

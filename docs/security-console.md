@@ -69,12 +69,28 @@ console_server.py
   |     +-- Career role catalog / interview sessions
   |     +-- Target registry / analysis / adapters
   |
+  +-- career_simulations.py
+  |     +-- interview evaluation
+  |     +-- role-specific simulation range
+  |     +-- hints / scoring / exemplar feedback
+  |
+  +-- security_frameworks.py
+  |     +-- OWASP Web 2025
+  |     +-- OWASP LLM 2026
+  |     +-- OWASP Agentic 2026
+  |     +-- MITRE ATLAS focus techniques
+  |
+  +-- vm_runtime.py
+  |     +-- Multipass lifecycle
+  |     +-- Git-stored guest blueprints
+  |
   +-- local state
         +-- runs.jsonl
         +-- cases.jsonl
         +-- targets.json
         +-- target_runs.jsonl
         +-- target_repos/
+        +-- career_attempts.jsonl
 ```
 
 The default state directory is `.agentic-ai-security-lab/`. The recommended explicit local state directory is `local-data/console/`.
@@ -103,8 +119,12 @@ The default state directory is `.agentic-ai-security-lab/`. The recommended expl
 
 | Endpoint | Method | Purpose |
 | --- | --- | --- |
-| `/api/career` | GET | Role catalog, levels, NICE framework context |
+| `/api/career` | GET | Role catalog, levels, NICE and framework context |
 | `/api/interview` | POST | Generate a multi-angle interview session |
+| `/api/career/simulations` | POST | Get role-specific hands-on simulations |
+| `/api/career/evaluate-interview` | POST | Evaluate one interview answer |
+| `/api/career/evaluate-simulation` | POST | Evaluate one simulation task |
+| `/api/career/attempts` | GET | Local interview/simulation attempt history |
 
 ### Target Lab APIs
 
@@ -151,3 +171,19 @@ Target Lab execution has an additional trust boundary:
 - execution has a 120-second timeout.
 
 See [Target Adapter Manifest](target-manifest.md) for the target execution contract.
+
+
+## Portable VM APIs
+
+VM-backed Career Lab exercises use text-based Git blueprints and Multipass.
+
+| Endpoint | Method | Purpose |
+| --- | --- | --- |
+| `/api/vm/catalog` | GET | Provider status and packaged VM blueprints |
+| `/api/vm/status` | POST | Inspect one AASL VM instance |
+| `/api/vm/start` | POST | Materialize/start a guest from its Git blueprint |
+| `/api/vm/reset` | POST | Destroy and recreate the selected guest |
+| `/api/vm/stop` | POST | Stop the selected guest |
+| `/api/vm/destroy` | POST | Delete and purge only the selected AASL guest |
+
+VM disks are never committed to the repository. See [Portable VM Labs](vm-labs.md).

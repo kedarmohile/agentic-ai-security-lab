@@ -1,0 +1,16 @@
+{
+  "blueprint_id": "linux-soc-dfir",
+  "title": "Linux SOC / DFIR Workstation",
+  "image": "24.04",
+  "cpus": 2,
+  "memory": "2G",
+  "disk": "8G",
+  "cloud_init": "cloud-init.yaml",
+  "scenario_ids": [
+    "sim-log-hunt-token-reuse",
+    "sim-dfir-scope",
+    "sim-malware-behavior",
+    "sim-detection-rule-design"
+  ],
+  "description": "Synthetic identity, endpoint, sandbox, and detection artifacts for SOC, DFIR, hunting, and detection-engineering practice."
+}

@@ -36,7 +36,7 @@ boot().catch(function(err){console.error(err);toast("Console initialization fail
 
 /* v2 Academy / Career Lab / Target Lab */
 state.academy = { catalog: null, progress: null };
-state.career = { catalog: null, selectedRole: null };
+state.career = { catalog: null, selectedRole: null, currentSession: null, mode: "interview", simulationCatalog: null, currentScenario: null, hintsUsed: {}, vmCatalog: null, vmStatus: null };
 state.targets = { items: [], runs: [], selected: null, lastResult: null };
 
 const _baseSetView = setView;
@@ -101,6 +101,13 @@ function renderAcademy() {
     return '<div class="atlas-cell '+(linked ? "linked" : "roadmap")+'"><strong>'+esc(t.name)+'</strong><span>'+(linked ? "MISSION-LINKED" : "ROADMAP")+'</span><span class="atlas-labs">'+esc(labs)+'</span></div>';
   }).join("");
 
+  const frameworkOrder = ["owasp_web_2025","owasp_llm_2026","owasp_agentic_2026","mitre_atlas_agentic"];
+  $("#framework-catalogs").innerHTML = frameworkOrder.map(function(key) {
+    const fw = catalog.frameworks && catalog.frameworks[key];
+    if (!fw) return "";
+    return '<article class="framework-card"><div class="framework-head"><div><div class="lab-domain">'+esc(fw.scope).toUpperCase()+'</div><h3>'+esc(fw.name)+'</h3></div><span class="tag neutral">'+esc(fw.items.length)+' ITEMS</span></div><div class="framework-items">'+fw.items.map(function(item){return '<div class="framework-item"><b>'+esc(item.id)+'</b><span>'+esc(item.name)+'</span></div>';}).join("")+'</div></article>';
+  }).join("");
+
   $("#commercial-references").innerHTML = catalog.references.map(function(ref) {
     return '<div class="reference-item"><a href="'+esc(ref.url)+'" target="_blank" rel="noreferrer">'+esc(ref.name)+' ↗</a><div class="ref-purpose">'+esc(ref.purpose).toUpperCase()+'</div><p>'+esc(ref.pattern)+'</p></div>';
   }).join("");
@@ -131,8 +138,13 @@ function renderCareer(filter) {
     card.addEventListener("click", function() {
       state.career.selectedRole = card.dataset.role;
       $("#career-role").value = card.dataset.role;
+      $("#simulation-role").value = card.dataset.role;
       renderCareer($("#role-search").value);
-      generateInterview();
+      if (state.career.mode === "simulation") {
+        loadRoleSimulations(card.dataset.role);
+      } else {
+        generateInterview();
+      }
     });
   });
 }
@@ -142,14 +154,266 @@ async function generateInterview() {
   const level = $("#career-level").value;
   if (!roleId) return;
   state.career.selectedRole = roleId;
+  $("#simulation-role").value = roleId;
   try {
-    const session = await api("/api/interview", {method:"POST", body:JSON.stringify({role_id:roleId, level:level})});
+    const session = await api("/api/interview", {
+      method:"POST",
+      body:JSON.stringify({role_id:roleId, level:level})
+    });
+    state.career.currentSession = session;
     const questions = session.questions.map(function(q, idx) {
-      return '<div class="question-card"><div class="question-dimension">'+esc(String(idx+1).padStart(2,"0"))+' · '+esc(q.dimension).toUpperCase()+'</div><p>'+esc(q.question)+'</p></div>';
+      return '<div class="question-card interactive-question" data-question-index="'+idx+'">' +
+        '<div class="question-dimension">'+esc(String(idx+1).padStart(2,"0"))+' · '+esc(q.dimension).toUpperCase()+'</div>' +
+        '<p>'+esc(q.question)+'</p>' +
+        '<textarea class="answer-editor interview-answer" rows="6" data-question-index="'+idx+'" placeholder="Answer as you would in the interview. Use concrete technical decisions, evidence, tradeoffs, and metrics where relevant."></textarea>' +
+        '<div class="answer-actions"><button class="button primary evaluate-interview" data-question-index="'+idx+'">Evaluate Answer</button><span class="subtle-copy">Your answer stays local in the Career Lab attempt store.</span></div>' +
+        '<div class="evaluation-result" id="interview-result-'+idx+'"></div>' +
+        '</div>';
     }).join("");
+
     $("#interview-session").className = "interview-session";
-    $("#interview-session").innerHTML = '<div class="interview-head"><div class="lab-domain">'+esc(session.role.group).toUpperCase()+'</div><h3>'+esc(session.role.name)+' · '+esc(session.level).toUpperCase()+'</h3><div class="subtle-copy">'+esc(session.role.summary)+'</div><div class="scorecard-row">'+session.scorecard.map(function(s){return '<span class="scorecard-chip">'+esc(s)+'</span>';}).join("")+'</div></div><div class="question-list">'+questions+'</div>';
+    $("#interview-session").innerHTML =
+      '<div class="interview-head"><div class="lab-domain">'+esc(session.role.group).toUpperCase()+'</div>' +
+      '<h3>'+esc(session.role.name)+' · '+esc(session.level).toUpperCase()+'</h3>' +
+      '<div class="subtle-copy">'+esc(session.role.summary)+'</div>' +
+      '<div class="scorecard-row">'+session.scorecard.map(function(s){return '<span class="scorecard-chip">'+esc(s)+'</span>';}).join("")+'</div></div>' +
+      '<div class="interview-instructions"><b>How to use this:</b> Answer one question at a time. Submit it to get a deterministic rubric score, specific strengths, missing points, an exemplar answer, and a next-step recommendation.</div>' +
+      '<div class="question-list">'+questions+'</div>';
+
+    $$(".evaluate-interview").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        evaluateInterviewQuestion(Number(btn.dataset.questionIndex));
+      });
+    });
     renderCareer($("#role-search").value);
+  } catch (err) {
+    toast(err.message, "error");
+  }
+}
+
+async function evaluateInterviewQuestion(index) {
+  const session = state.career.currentSession;
+  if (!session || !session.questions[index]) return;
+  const q = session.questions[index];
+  const editor = $('.interview-answer[data-question-index="'+index+'"]');
+  const answer = editor ? editor.value.trim() : "";
+  if (!answer) {
+    toast("Write an answer before evaluating it.", "error");
+    return;
+  }
+  try {
+    const result = await api("/api/career/evaluate-interview", {
+      method:"POST",
+      body:JSON.stringify({
+        role_id: session.role.role_id,
+        level: session.level,
+        dimension: q.dimension,
+        question: q.question,
+        answer: answer
+      })
+    });
+    const root = $("#interview-result-"+index);
+    root.innerHTML = evaluationMarkup(result);
+    root.classList.add("visible");
+  } catch (err) {
+    toast(err.message, "error");
+  }
+}
+
+function evaluationMarkup(result) {
+  const strengths = (result.strengths || []).map(function(x){return '<li>'+esc(x)+'</li>';}).join("");
+  const improvements = (result.improvements || []).map(function(x){return '<li>'+esc(x)+'</li>';}).join("");
+  return '<div class="evaluation-head"><div><div class="label">EVALUATION</div><strong>'+esc(result.score)+'/100 · '+esc(result.quality)+'</strong></div><div class="score-meter"><i style="width:'+Math.max(0,Math.min(100,result.score))+'%"></i></div></div>' +
+    '<div class="feedback-grid"><div><div class="feedback-title good">WHAT WORKED</div><ul>'+strengths+'</ul></div><div><div class="feedback-title improve">WHAT TO STRENGTHEN</div><ul>'+improvements+'</ul></div></div>' +
+    '<div class="model-answer"><div class="feedback-title">EXEMPLAR ANSWER / RESPONSE SHAPE</div><p>'+esc(result.model_answer)+'</p></div>' +
+    '<div class="next-step"><b>Next:</b> '+esc(result.next_step || "Refine the answer and retry.")+'</div>';
+}
+
+function setCareerMode(mode) {
+  state.career.mode = mode;
+  $$(".career-mode-tab").forEach(function(tab){tab.classList.toggle("active", tab.dataset.careerMode === mode);});
+  $("#career-interview-panel").classList.toggle("active", mode === "interview");
+  $("#career-simulation-panel").classList.toggle("active", mode === "simulation");
+  if (mode === "simulation") {
+    const roleId = $("#simulation-role").value || $("#career-role").value;
+    loadRoleSimulations(roleId);
+  }
+}
+
+async function loadRoleSimulations(roleId) {
+  if (!roleId) return;
+  $("#simulation-role").value = roleId;
+  try {
+    const data = await api("/api/career/simulations", {
+      method:"POST",
+      body:JSON.stringify({role_id:roleId})
+    });
+    state.career.simulationCatalog = data;
+    const select = $("#simulation-scenario");
+    select.innerHTML = (data.scenarios || []).map(function(s) {
+      return '<option value="'+esc(s.scenario_id)+'">'+esc(s.category)+' · '+esc(s.title)+'</option>';
+    }).join("");
+    if (!(data.scenarios || []).length) {
+      $("#simulation-workspace").className = "simulation-workspace empty-state";
+      $("#simulation-workspace").textContent = "No simulation is mapped to this role yet.";
+      return;
+    }
+    loadSimulation();
+  } catch (err) {
+    toast(err.message, "error");
+  }
+}
+
+function loadSimulation() {
+  const data = state.career.simulationCatalog;
+  if (!data) return;
+  const scenarioId = $("#simulation-scenario").value;
+  const scenario = (data.scenarios || []).find(function(s){return s.scenario_id === scenarioId;});
+  if (!scenario) return;
+  state.career.currentScenario = scenario;
+  state.career.hintsUsed = {};
+
+  const objectives = scenario.objectives.map(function(x){return '<li>'+esc(x)+'</li>';}).join("");
+  const artifacts = scenario.artifacts.map(function(a, idx) {
+    return '<article class="artifact-card" data-artifact-id="'+esc(a.artifact_id)+'"><div class="artifact-head"><span>'+esc(a.kind).toUpperCase()+'</span><b>'+esc(a.title)+'</b></div><pre>'+esc(a.content)+'</pre></article>';
+  }).join("");
+  const tasks = scenario.tasks.map(function(t, idx) {
+    return '<article class="simulation-task" data-task="'+esc(t.task_id)+'">' +
+      '<div class="question-dimension">TASK '+esc(String(idx+1).padStart(2,"0"))+' · '+esc(t.answer_type).toUpperCase()+'</div>' +
+      '<h3>'+esc(t.title)+'</h3><p>'+esc(t.prompt)+'</p>' +
+      '<div class="hint-panel" id="hints-'+esc(t.task_id)+'"></div>' +
+      '<div class="answer-actions"><button class="button subtle reveal-hint" data-task="'+esc(t.task_id)+'">Show Hint</button></div>' +
+      '<textarea class="answer-editor simulation-answer" rows="7" data-task="'+esc(t.task_id)+'" placeholder="Write your finding, analysis, query/tool idea, decision, or remediation here."></textarea>' +
+      '<div class="answer-actions"><button class="button primary evaluate-simulation" data-task="'+esc(t.task_id)+'">Validate Task</button></div>' +
+      '<div class="evaluation-result" id="simulation-result-'+esc(t.task_id)+'"></div>' +
+      '</article>';
+  }).join("");
+
+  function mapGroup(title, items, cssClass) {
+    if (!items || !items.length) return "";
+    return '<div class="scenario-map-group '+cssClass+'"><div class="feedback-title">'+esc(title)+'</div><div class="atlas-technique-row">'+items.map(function(t){return '<span class="atlas-technique"><b>'+esc(t.id)+'</b> '+esc(t.name)+'</span>';}).join("")+'</div></div>';
+  }
+  const frameworkMarkup =
+    mapGroup("OWASP TOP 10:2025", scenario.owasp_web || [], "owasp-web") +
+    mapGroup("OWASP LLM TOP 10:2026", scenario.owasp_llm || [], "owasp-llm") +
+    mapGroup("OWASP AGENTIC TOP 10:2026", scenario.owasp_agentic || [], "owasp-agentic") +
+    mapGroup("MITRE ATLAS", scenario.atlas || [], "mitre-atlas");
+  const frameworkEmpty = frameworkMarkup
+    ? frameworkMarkup
+    : '<div class="subtle-copy">This exercise is core cybersecurity practice and has no direct AI-specific framework mapping.</div>';
+  const runtime = scenario.runtime || {tier:"inline", blueprint_id:null};
+  let vmMarkup = '';
+  if (runtime.blueprint_id) {
+    const host = state.career.vmCatalog && state.career.vmCatalog.host ? state.career.vmCatalog.host : {available:false};
+    vmMarkup = '<div class="vm-panel"><div><div class="label">PORTABLE VM LAB</div><strong>'+esc(runtime.tier.replace("-", " ").toUpperCase())+'</strong><span>Blueprint: '+esc(runtime.blueprint_id)+'</span></div>' +
+      '<div class="vm-actions"><button class="button primary vm-start" data-blueprint="'+esc(runtime.blueprint_id)+'">Start VM</button><button class="button subtle vm-reset" data-blueprint="'+esc(runtime.blueprint_id)+'">Reset VM</button><button class="button subtle vm-stop" data-blueprint="'+esc(runtime.blueprint_id)+'">Stop VM</button></div>' +
+      '<div class="vm-host-status '+(host.available ? "ready" : "missing")+'">'+(host.available ? 'Multipass detected on this host.' : 'Multipass not detected. The browser exercise still works; install Multipass to materialize the Linux guest.')+'</div>' +
+      '<div id="vm-status-box" class="vm-status-box"></div></div>';
+  }
+
+  $("#simulation-workspace").className = "simulation-workspace";
+  $("#simulation-workspace").innerHTML =
+    '<div class="scenario-head"><div><div class="lab-domain">'+esc(scenario.category).toUpperCase()+'</div><h2>'+esc(scenario.title)+'</h2><div class="scenario-meta">'+esc(scenario.difficulty)+' · '+esc(scenario.skills.join(" · "))+'</div></div><span class="tag '+((scenario.atlas||[]).length ? "pass" : "neutral")+'">'+esc(scenario.specialization || "Core Cybersecurity")+'</span></div>' +
+    '<p class="scenario-brief">'+esc(scenario.briefing)+'</p>' +
+    '<div class="atlas-mapping"><div class="label">FRAMEWORK CROSSWALK</div>'+frameworkEmpty+'</div>' +
+    vmMarkup +
+    '<div class="scenario-objectives"><div class="label">OBJECTIVES</div><ul>'+objectives+'</ul></div>' +
+    '<div class="workbench"><div class="panel-head"><div><div class="label">SEARCH WORKBENCH</div><div class="subtle-copy">Search the synthetic artifacts without leaving Career Lab.</div></div></div><div class="workbench-controls"><input id="simulation-search" class="large-input" placeholder="Try: token, admin, registry, MRN, approval, error…"><button id="run-simulation-search" class="button subtle">Search Artifacts</button></div><div id="simulation-search-results" class="search-results empty-state">Enter a term to search the artifacts.</div></div>' +
+    '<div class="label section-label">ARTIFACTS</div><div class="artifact-grid">'+artifacts+'</div>' +
+    '<div class="label section-label">TASKS</div><div class="simulation-task-list">'+tasks+'</div>';
+
+  $("#run-simulation-search").addEventListener("click", runSimulationSearch);
+  $("#simulation-search").addEventListener("keydown", function(e){if(e.key === "Enter") runSimulationSearch();});
+  $$(".reveal-hint").forEach(function(btn){btn.addEventListener("click", function(){revealHint(btn.dataset.task);});});
+  $(".evaluate-simulation").forEach(function(btn){btn.addEventListener("click", function(){evaluateSimulationTaskUI(btn.dataset.task);});});
+  $(".vm-start").forEach(function(btn){btn.addEventListener("click", function(){vmAction("/api/vm/start", btn.dataset.blueprint);});});
+  $(".vm-reset").forEach(function(btn){btn.addEventListener("click", function(){vmAction("/api/vm/reset", btn.dataset.blueprint);});});
+  $(".vm-stop").forEach(function(btn){btn.addEventListener("click", function(){vmAction("/api/vm/stop", btn.dataset.blueprint);});});
+  if (runtime.blueprint_id && state.career.vmCatalog && state.career.vmCatalog.host && state.career.vmCatalog.host.available) {
+    vmAction("/api/vm/status", runtime.blueprint_id, true);
+  }
+}
+
+async function vmAction(path, blueprintId, quiet) {
+  try {
+    if (!quiet && (path === "/api/vm/start" || path === "/api/vm/reset")) {
+      toast(path === "/api/vm/reset" ? "Recreating Linux guest from Git blueprint…" : "Starting Linux guest from Git blueprint…");
+    }
+    const result = await api(path, {method:"POST", body:JSON.stringify({blueprint_id:blueprintId})});
+    state.career.vmStatus = result;
+    const box = $("#vm-status-box");
+    if (box) {
+      const instance = result.instance;
+      const stateText = instance ? (instance.state || "unknown") : "not created";
+      box.innerHTML = '<div class="vm-status-line"><span>INSTANCE</span><b>'+esc(result.instance_name)+'</b></div>' +
+        '<div class="vm-status-line"><span>STATE</span><b>'+esc(stateText)+'</b></div>' +
+        '<div class="vm-shell-command"><span>OPEN GUEST</span><code>'+esc(result.shell_command || "")+'</code></div>';
+    }
+    if (!quiet) toast("VM status: "+(result.instance ? (result.instance.state || "ready") : "not created"), "success");
+  } catch (err) {
+    if (!quiet) toast(err.message, "error");
+  }
+}
+
+function runSimulationSearch() {
+  const scenario = state.career.currentScenario;
+  if (!scenario) return;
+  const query = $("#simulation-search").value.trim().toLowerCase();
+  const root = $("#simulation-search-results");
+  if (!query) {
+    root.className = "search-results empty-state";
+    root.textContent = "Enter a term to search the artifacts.";
+    return;
+  }
+  const hits = [];
+  scenario.artifacts.forEach(function(a) {
+    a.content.split(/\n/).forEach(function(line, idx) {
+      if (line.toLowerCase().includes(query)) hits.push({artifact:a.title, line:idx+1, text:line});
+    });
+  });
+  root.className = "search-results";
+  root.innerHTML = hits.length ? hits.slice(0,40).map(function(h){
+    return '<div class="search-hit"><span>'+esc(h.artifact)+' · L'+esc(h.line)+'</span><code>'+esc(h.text)+'</code></div>';
+  }).join("") : '<div class="empty-state">No matches. Try another term or use a hint.</div>';
+}
+
+function revealHint(taskId) {
+  const scenario = state.career.currentScenario;
+  if (!scenario) return;
+  const task = scenario.tasks.find(function(t){return t.task_id === taskId;});
+  if (!task) return;
+  const used = state.career.hintsUsed[taskId] || 0;
+  if (used >= task.hints.length) {
+    toast("All hints for this task are already visible.");
+    return;
+  }
+  state.career.hintsUsed[taskId] = used + 1;
+  const visible = task.hints.slice(0, used+1);
+  $("#hints-"+taskId).innerHTML = visible.map(function(h, idx){return '<div class="hint-item"><b>Hint '+(idx+1)+'</b><span>'+esc(h)+'</span></div>';}).join("");
+}
+
+async function evaluateSimulationTaskUI(taskId) {
+  const scenario = state.career.currentScenario;
+  if (!scenario) return;
+  const editor = $('.simulation-answer[data-task="'+taskId+'"]');
+  const answer = editor ? editor.value.trim() : "";
+  if (!answer) {
+    toast("Write your analysis before validating the task.", "error");
+    return;
+  }
+  try {
+    const result = await api("/api/career/evaluate-simulation", {
+      method:"POST",
+      body:JSON.stringify({
+        scenario_id: scenario.scenario_id,
+        task_id: taskId,
+        answer: answer,
+        hints_used: state.career.hintsUsed[taskId] || 0
+      })
+    });
+    const root = $("#simulation-result-"+taskId);
+    root.innerHTML = evaluationMarkup(result);
+    root.classList.add("visible");
   } catch (err) {
     toast(err.message, "error");
   }
@@ -276,23 +540,45 @@ async function bootV2() {
     api("/api/academy/progress"),
     api("/api/career"),
     api("/api/targets"),
+    api("/api/career/attempts"),
+    api("/api/vm/catalog"),
   ]);
   state.academy.catalog = values[0];
   state.academy.progress = values[1];
   state.career.catalog = values[2];
   state.targets.items = values[3].targets || [];
   state.targets.runs = values[3].runs || [];
+  state.career.attempts = values[4].attempts || [];
+  state.career.vmCatalog = values[5];
 
   renderAcademy();
   renderCareer("");
   renderTargets();
+  $("#simulation-role").innerHTML = state.career.catalog.roles.map(function(role){return '<option value="'+esc(role.role_id)+'">'+esc(role.name)+'</option>';}).join("");
+  const defaultRole = $("#career-role").value || "ai-security";
+  $("#simulation-role").value = defaultRole;
+  loadRoleSimulations(defaultRole);
 
   $$(".product-tab").forEach(function(tab) {
     tab.addEventListener("click", function() { setView(tab.dataset.productView); });
   });
   $("#role-search").addEventListener("input", function(e){ renderCareer(e.target.value); });
-  $("#career-role").addEventListener("change", function(){ state.career.selectedRole = $("#career-role").value; renderCareer($("#role-search").value); });
+  $("#career-role").addEventListener("change", function(){
+    state.career.selectedRole = $("#career-role").value;
+    $("#simulation-role").value = $("#career-role").value;
+    renderCareer($("#role-search").value);
+    if (state.career.mode === "simulation") loadRoleSimulations($("#career-role").value);
+  });
   $("#generate-interview").addEventListener("click", generateInterview);
+  $("#simulation-role").addEventListener("change", function(){
+    state.career.selectedRole = $("#simulation-role").value;
+    $("#career-role").value = $("#simulation-role").value;
+    renderCareer($("#role-search").value);
+    loadRoleSimulations($("#simulation-role").value);
+  });
+  $("#simulation-scenario").addEventListener("change", loadSimulation);
+  $("#load-simulation").addEventListener("click", loadSimulation);
+  $(".career-mode-tab").forEach(function(tab){tab.addEventListener("click", function(){setCareerMode(tab.dataset.careerMode);});});
   $("#register-target").addEventListener("click", registerTarget);
 
   const oldRefresh = refreshData;
