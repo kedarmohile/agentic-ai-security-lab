@@ -11,6 +11,7 @@ The goal of this repository is to turn AI-security claims into **small, inspecta
 | [Lab 01 — Cross-Actor Persistent Memory Isolation](docs/lab01-threat-model.md) | Can data remembered for Actor A cross the authorization boundary and surface to Actor B? | Implemented |
 | [Lab 02 — Tool Authorization Boundary](docs/lab02-threat-model.md) | Can untrusted context satisfy or bypass approval for a privileged tool action? | Implemented |
 | [Lab 03 — Retrieval / Memory Poisoning](docs/lab03-threat-model.md) | Can persisted untrusted content retrieved later change a benign answer? | Implemented |
+| [Lab 04 — Confused-Deputy Delegation](docs/lab04-threat-model.md) | Can a delegate misuse a more-privileged deputy beyond the original principal's scope? | Implemented |
 
 ## Lab 01: Cross-Actor Persistent Memory Isolation
 
@@ -146,6 +147,49 @@ agentic-ai-retrieval-poisoning --mode poison-not-retrieved
 The poison marker is intentionally benign (`BLUEBIRD-42`). No external model, vector database, network endpoint, or commercial service is used. Retrieval and response behavior are deterministic so the causal chain is inspectable and regression-testable.
 
 See the [Lab 03 threat model](docs/lab03-threat-model.md) and [result schema](schema/lab03-result.schema.json).
+
+
+## Lab 04: Confused-Deputy Delegation
+
+Multi-agent systems frequently pass work between agents with different privileges. A more-privileged deputy must not treat its own capability as proof that the original principal authorized the requested action.
+
+Lab 04 models this delegation chain:
+
+```text
+principal → delegate agent → privileged deputy → simulated action
+```
+
+The principal delegates a narrow action to Agent A. Agent A then asks Agent B, which has broader local privileges, to perform something outside that delegation.
+
+### Security invariant
+
+> A privileged deputy may execute only when the original principal's delegation is valid for the exact principal, delegate, deputy, request, action, and resource.
+
+### Run locally
+
+```bash
+# Narrow delegation cannot be escalated through a privileged deputy
+agentic-ai-delegation-boundary --mode secure
+
+# Deliberately vulnerable broker trusts the deputy's own local privilege
+agentic-ai-delegation-boundary --mode vulnerable
+
+# Exact delegated authority is accepted
+agentic-ai-delegation-boundary --mode exact-delegated
+
+# Delegation for one resource cannot authorize another
+agentic-ai-delegation-boundary --mode resource-substitution
+
+# Delegation to one agent cannot be transferred to another
+agentic-ai-delegation-boundary --mode delegate-substitution
+
+# Delegation from an earlier request cannot be replayed
+agentic-ai-delegation-boundary --mode request-replay
+```
+
+The "action" is only appended to an in-memory ledger. No external system, shell, network endpoint, cloud API, or privileged resource is touched.
+
+See the [Lab 04 threat model](docs/lab04-threat-model.md) and [result schema](schema/lab04-result.schema.json).
 
 ## Repository principles
 
