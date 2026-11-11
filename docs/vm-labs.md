@@ -110,3 +110,10 @@ VM artifacts are synthetic.
 The current guests do not contain real credentials, destructive malware, or external-target exploit instructions.
 
 VM-backed exercises should remain isolated and disposable. Future scenarios that require networking should define explicit network policy in the blueprint rather than inheriting unrestricted access by default.
+
+
+## Scaling beyond local Multipass
+
+Local Multipass is the individual learner runtime. For concurrent hosted labs, browser-only learners, Windows/AD environments, or multi-machine ranges, use a cloud sandbox provider rather than scaling local Multipass.
+
+See [Cloud Scaling for VM-Backed Labs](cloud-lab-scaling.md).
