@@ -12,6 +12,7 @@ The goal of this repository is to turn AI-security claims into **small, inspecta
 | [Lab 02 — Tool Authorization Boundary](docs/lab02-threat-model.md) | Can untrusted context satisfy or bypass approval for a privileged tool action? | Implemented |
 | [Lab 03 — Retrieval / Memory Poisoning](docs/lab03-threat-model.md) | Can persisted untrusted content retrieved later change a benign answer? | Implemented |
 | [Lab 04 — Confused-Deputy Delegation](docs/lab04-threat-model.md) | Can a delegate misuse a more-privileged deputy beyond the original principal's scope? | Implemented |
+| [Lab 05 — Agent Credential Scope Leakage](docs/lab05-threat-model.md) | Can one agent's credential leak to another agent or cross its intended audience/resource/request scope? | Implemented |
 
 ## Lab 01: Cross-Actor Persistent Memory Isolation
 
@@ -190,6 +191,53 @@ agentic-ai-delegation-boundary --mode request-replay
 The "action" is only appended to an in-memory ledger. No external system, shell, network endpoint, cloud API, or privileged resource is touched.
 
 See the [Lab 04 threat model](docs/lab04-threat-model.md) and [result schema](schema/lab04-result.schema.json).
+
+
+## Lab 05: Agent Credential Scope Leakage
+
+Agentic runtimes often attach service credentials, API tokens, or workload identity to one agent and then hand work to another agent or tool. Lab 05 tests whether the **raw parent credential crosses that boundary**, and separately whether a leaked or mis-scoped credential is actually usable.
+
+The lab distinguishes:
+
+1. credential exposure to the wrong agent;
+2. subject binding;
+3. audience/tool binding;
+4. resource binding;
+5. request binding / replay resistance;
+6. safe derived child credentials.
+
+### Security invariant
+
+> A credential issued to Agent A must not become usable by Agent B unless a new credential is explicitly derived for Agent B and bound to the intended audience, action, resource, and request.
+
+### Run locally
+
+```bash
+# Parent credential is not propagated to the child
+agentic-ai-credential-scope --mode secure
+
+# Parent credential leaks, but strict subject binding prevents use
+agentic-ai-credential-scope --mode leaked-bound
+
+# Deliberately vulnerable verifier treats a leaked credential as bearer authority
+agentic-ai-credential-scope --mode vulnerable
+
+# Safe pattern: distinct credential derived for the child and exact request
+agentic-ai-credential-scope --mode derived-child
+
+# Credential cannot cross service/audience boundaries
+agentic-ai-credential-scope --mode audience-substitution
+
+# Credential cannot broaden to another resource
+agentic-ai-credential-scope --mode resource-substitution
+
+# Credential from an earlier request cannot be replayed
+agentic-ai-credential-scope --mode request-replay
+```
+
+All identities, credentials, services, and actions are synthetic. The service runtime is an in-memory ledger and performs no network or external action.
+
+See the [Lab 05 threat model](docs/lab05-threat-model.md) and [result schema](schema/lab05-result.schema.json).
 
 ## Repository principles
 
