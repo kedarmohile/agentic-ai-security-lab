@@ -1,0 +1,21 @@
+{
+  "authorization_mode": "secure",
+  "authorization_source": "trusted-token",
+  "decision_reason": "valid-bound-approval",
+  "finding": false,
+  "lab": "lab02-tool-authorization-boundary",
+  "lab_mode": "trusted-approved",
+  "ordinary_tool_control_executed": true,
+  "privileged_tool": "publish_report",
+  "privileged_tool_attempted": true,
+  "privileged_tool_executed": true,
+  "request_sha256": "32187b320338b68e7096ef0646740b92f1643cb5b285c12b0231b5a03e599298",
+  "run_id": "example-trusted-approved",
+  "severity": "none",
+  "trusted_approval_token_supplied": true,
+  "trusted_approval_valid_for_request": true,
+  "untrusted_approval_claim_present": true,
+  "untrusted_context_present": true,
+  "untrusted_context_sha256": "533633c9a4e761773b1c6843e43f5679ec7c0a4078cadf999995b37e80f86141",
+  "verdict": "expected-authorized"
+}
