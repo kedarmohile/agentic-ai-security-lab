@@ -171,6 +171,33 @@ def test_v2_product_apis(tmp_path: Path) -> None:
         assert session["role"]["name"] == "SOC Analyst"
         assert len(session["questions"]) >= 8
 
+        principal_request = urllib.request.Request(
+            f"{base}/api/interview",
+            data=json.dumps({"role_id": "security-architecture", "level": "principal"}).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(principal_request) as response:
+            principal_session = json.loads(response.read().decode("utf-8"))
+        assert principal_session["level"] == "principal"
+        assert any("reference architecture" in q["question"].lower() for q in principal_session["questions"])
+
+        executive_request = urllib.request.Request(
+            f"{base}/api/interview",
+            data=json.dumps({"role_id": "security-leadership", "level": "executive"}).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(executive_request) as response:
+            executive_session = json.loads(response.read().decode("utf-8"))
+        assert executive_session["level"] == "executive"
+        assert any("board" in q["question"].lower() for q in executive_session["questions"])
+
+        with urllib.request.urlopen(f"{base}/api/career/evaluator") as response:
+            evaluator = json.loads(response.read().decode("utf-8"))
+        assert evaluator["provider"] in {"deterministic", "openai"}
+        assert 80 <= evaluator["mastery_score"] <= 100
+
 
         simulation_request = urllib.request.Request(
             f"{base}/api/career/simulations",
@@ -273,6 +300,7 @@ def test_v2_repository_docs_are_aligned_with_product() -> None:
     career = Path("docs/career-lab.md").read_text(encoding="utf-8")
     frameworks = Path("docs/security-frameworks.md").read_text(encoding="utf-8")
     vm_labs = Path("docs/vm-labs.md").read_text(encoding="utf-8")
+    ui_design = Path("docs/ui-design-system.md").read_text(encoding="utf-8")
 
     assert "Academy" in readme
     assert "Career Lab" in readme
@@ -304,10 +332,15 @@ def test_v2_repository_docs_are_aligned_with_product() -> None:
     assert "Multipass" in vm_labs
     assert "destroy and recreate" in vm_labs
 
+    assert "Major Third" in ui_design
+    assert "--type-body" in ui_design
+    assert "No intentional UI text" in ui_design
+
     for path in (
         "docs/academy.md",
         "docs/career-lab.md",
         "docs/security-frameworks.md",
+        "docs/ui-design-system.md",
         "docs/vm-labs.md",
         "docs/target-lab.md",
         "docs/product-reference-models.md",

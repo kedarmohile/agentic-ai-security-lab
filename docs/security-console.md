@@ -1,6 +1,6 @@
 # AASL Platform Architecture
 
-AASL v0.7 is an open-source agentic AI security platform with three distinct product experiences that share one evidence engine.
+AASL v0.9 is an open-source agentic AI security platform with three distinct product experiences that share one evidence engine.
 
 ## Product surfaces
 
@@ -74,6 +74,11 @@ console_server.py
   |     +-- role-specific simulation range
   |     +-- hints / scoring / exemplar feedback
   |
+  +-- model_evaluator.py
+  |     +-- deterministic offline fallback
+  |     +-- optional OpenAI Responses API evaluation
+  |     +-- weighted rubrics / mastery threshold
+  |
   +-- security_frameworks.py
   |     +-- OWASP Web 2025
   |     +-- OWASP LLM 2026
@@ -125,6 +130,7 @@ The default state directory is `.agentic-ai-security-lab/`. The recommended expl
 | `/api/career/evaluate-interview` | POST | Evaluate one interview answer |
 | `/api/career/evaluate-simulation` | POST | Evaluate one simulation task |
 | `/api/career/attempts` | GET | Local interview/simulation attempt history |
+| `/api/career/evaluator` | GET | Evaluator provider/model/mastery status |
 
 ### Target Lab APIs
 
@@ -187,3 +193,13 @@ VM-backed Career Lab exercises use text-based Git blueprints and Multipass.
 | `/api/vm/destroy` | POST | Delete and purge only the selected AASL guest |
 
 VM disks are never committed to the repository. See [Portable VM Labs](vm-labs.md).
+
+
+## Career Lab voice
+
+Interview Studio can use browser-native Web Speech capabilities:
+
+- speech synthesis for interviewer questions;
+- speech recognition for learner answers when supported.
+
+Voice is progressive enhancement; typed answers remain the fallback.

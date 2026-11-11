@@ -31,12 +31,12 @@ function renderPalette(query){const q=(query||"").toLowerCase().trim();const ite
 function activatePaletteItem(btn){$("#command-palette").classList.remove("open");if(btn.dataset.type==="view")setView(btn.dataset.value);else{const parts=btn.dataset.value.split("|");execute(parts[0],parts[1])}}
 function openPalette(){$("#command-palette").classList.add("open");$("#palette-input").value="";renderPalette("");setTimeout(function(){$("#palette-input").focus()},20)}
 async function refreshData(){const values=await Promise.all([api("/api/status"),api("/api/runs"),api("/api/findings"),api("/api/cases")]);state.status=values[0];state.runs=values[1].runs;state.findings=values[2].findings;state.cases=values[3].cases;renderStatus();renderRecentRuns();renderRuns();renderFindings();renderCases();if(state.view==="evidence")renderEvidence()}
-async function boot(){state.catalog=await api("/api/catalog");fillLabSelect($("#quick-lab"));fillLabSelect($("#drawer-lab"));fillModes($("#quick-lab"),$("#quick-mode"));fillModes($("#drawer-lab"),$("#drawer-mode"));updateDrawerQuestion();renderPriorityHunts();renderHunts();renderLabs();await refreshData();$("[data-scroll-target]").forEach(function(btn){btn.addEventListener("click",function(){const target=document.getElementById(btn.dataset.scrollTarget);if(target)target.scrollIntoView({behavior:"smooth",block:"start"})})});$("#nav").addEventListener("click",function(e){const btn=e.target.closest(".nav-item");if(btn)setView(btn.dataset.view)});$$("[data-jump]").forEach(function(btn){btn.addEventListener("click",function(){setView(btn.dataset.jump)})});$("#quick-lab").addEventListener("change",function(){fillModes($("#quick-lab"),$("#quick-mode"))});$("#drawer-lab").addEventListener("change",function(){fillModes($("#drawer-lab"),$("#drawer-mode"));updateDrawerQuestion()});$("#quick-run").addEventListener("click",function(){execute($("#quick-lab").value,$("#quick-mode").value)});$("#drawer-run").addEventListener("click",function(){execute($("#drawer-lab").value,$("#drawer-mode").value)});$("#open-runner").addEventListener("click",function(){openRunner()});$("#close-runner").addEventListener("click",closeDrawers);$("#close-detail").addEventListener("click",closeDrawers);$("#drawer-backdrop").addEventListener("click",closeDrawers);$("#run-pack").addEventListener("click",runHuntPack);$("#command-button").addEventListener("click",openPalette);$("#palette-input").addEventListener("input",function(e){renderPalette(e.target.value)});$("#command-palette").addEventListener("click",function(e){if(e.target.id==="command-palette")e.currentTarget.classList.remove("open")});document.addEventListener("keydown",function(e){if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault();openPalette()}if(e.key==="Escape"){$("#command-palette").classList.remove("open");closeDrawers()}if(e.key==="Enter"&&$("#command-palette").classList.contains("open")){const first=$(".palette-item.active");if(first)activatePaletteItem(first)}})}
-boot().catch(function(err){console.error(err);toast("Console initialization failed: "+err.message,"error")});
+async function boot(){state.catalog=await api("/api/catalog");fillLabSelect($("#quick-lab"));fillLabSelect($("#drawer-lab"));fillModes($("#quick-lab"),$("#quick-mode"));fillModes($("#drawer-lab"),$("#drawer-mode"));updateDrawerQuestion();renderPriorityHunts();renderHunts();renderLabs();await refreshData();$$("[data-scroll-target]").forEach(function(btn){btn.addEventListener("click",function(){const target=document.getElementById(btn.dataset.scrollTarget);if(target)target.scrollIntoView({behavior:"smooth",block:"start"})})});$("#nav").addEventListener("click",function(e){const btn=e.target.closest(".nav-item");if(btn)setView(btn.dataset.view)});$$("[data-jump]").forEach(function(btn){btn.addEventListener("click",function(){setView(btn.dataset.jump)})});$("#quick-lab").addEventListener("change",function(){fillModes($("#quick-lab"),$("#quick-mode"))});$("#drawer-lab").addEventListener("change",function(){fillModes($("#drawer-lab"),$("#drawer-mode"));updateDrawerQuestion()});$("#quick-run").addEventListener("click",function(){execute($("#quick-lab").value,$("#quick-mode").value)});$("#drawer-run").addEventListener("click",function(){execute($("#drawer-lab").value,$("#drawer-mode").value)});$("#open-runner").addEventListener("click",function(){openRunner()});$("#close-runner").addEventListener("click",closeDrawers);$("#close-detail").addEventListener("click",closeDrawers);$("#drawer-backdrop").addEventListener("click",closeDrawers);$("#run-pack").addEventListener("click",runHuntPack);$("#command-button").addEventListener("click",openPalette);$("#palette-input").addEventListener("input",function(e){renderPalette(e.target.value)});$("#command-palette").addEventListener("click",function(e){if(e.target.id==="command-palette")e.currentTarget.classList.remove("open")});document.addEventListener("keydown",function(e){if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault();openPalette()}if(e.key==="Escape"){$("#command-palette").classList.remove("open");closeDrawers()}if(e.key==="Enter"&&$("#command-palette").classList.contains("open")){const first=$(".palette-item.active");if(first)activatePaletteItem(first)}})}
+
 
 /* v2 Academy / Career Lab / Target Lab */
 state.academy = { catalog: null, progress: null };
-state.career = { catalog: null, selectedRole: null, currentSession: null, mode: "interview", simulationCatalog: null, currentScenario: null, hintsUsed: {}, vmCatalog: null, vmStatus: null };
+state.career = { catalog: null, selectedRole: null, currentSession: null, mode: "interview", simulationCatalog: null, currentScenario: null, hintsUsed: {}, vmCatalog: null, vmStatus: null, evaluator: null, interviewer: null, voiceRecognition: null };
 state.targets = { items: [], runs: [], selected: null, lastResult: null };
 
 const _baseSetView = setView;
@@ -149,40 +149,158 @@ function renderCareer(filter) {
   });
 }
 
+
+function selectedInterviewer() {
+  const data = state.career.catalog;
+  if (!data || !data.interviewers || !data.interviewers.length) return null;
+  const id = $("#career-interviewer") ? $("#career-interviewer").value : "";
+  return data.interviewers.find(function(p){ return p.persona_id === id; }) || data.interviewers[0];
+}
+
+function updateCareerLevelExpectation() {
+  const data = state.career.catalog;
+  const level = $("#career-level") ? $("#career-level").value : "senior";
+  const profile = data && data.level_profiles ? data.level_profiles[level] : null;
+  const root = $("#career-level-expectation");
+  if (!root) return;
+  if (!profile) {
+    root.textContent = "";
+    return;
+  }
+  root.innerHTML = '<b>'+esc(profile.label)+' expectation:</b> '+esc(profile.expectation);
+}
+
+function voiceCapabilities() {
+  const recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  return {
+    synthesis: "speechSynthesis" in window,
+    recognition: Boolean(recognition),
+    Recognition: recognition
+  };
+}
+
+function updateVoiceStatus() {
+  const caps = voiceCapabilities();
+  const root = $("#career-voice-status");
+  if (!root) return;
+  if (caps.synthesis && caps.recognition) root.textContent = "Speak + Dictate";
+  else if (caps.synthesis) root.textContent = "Speak only";
+  else root.textContent = "Typed fallback";
+}
+
+function speakInterviewText(text) {
+  const caps = voiceCapabilities();
+  if (!caps.synthesis) {
+    toast("Speech synthesis is not available in this browser.", "error");
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.rate = 0.96;
+  utterance.pitch = 1.0;
+  const voices = window.speechSynthesis.getVoices().filter(function(v){
+    return !v.lang || v.lang.toLowerCase().startsWith("en");
+  });
+  const persona = selectedInterviewer();
+  if (voices.length) {
+    const personaIndex = persona ? Math.abs((persona.persona_id || "").split("").reduce(function(a,ch){return a+ch.charCodeAt(0);},0)) % voices.length : 0;
+    utterance.voice = voices[personaIndex];
+  }
+  window.speechSynthesis.speak(utterance);
+}
+
+function dictateInto(textarea) {
+  const caps = voiceCapabilities();
+  if (!caps.recognition) {
+    toast("Speech recognition is not supported by this browser. You can still type your answer.", "error");
+    return;
+  }
+  if (state.career.voiceRecognition) {
+    try { state.career.voiceRecognition.stop(); } catch (err) {}
+  }
+  const recognition = new caps.Recognition();
+  state.career.voiceRecognition = recognition;
+  recognition.lang = "en-US";
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  const original = textarea.value.trim();
+  let finalText = "";
+  recognition.onresult = function(event) {
+    let interim = "";
+    for (let i = event.resultIndex; i < event.results.length; i += 1) {
+      const transcript = event.results[i][0].transcript;
+      if (event.results[i].isFinal) finalText += transcript + " ";
+      else interim += transcript;
+    }
+    textarea.value = [original, finalText.trim(), interim.trim()].filter(Boolean).join(original ? " " : "");
+  };
+  recognition.onerror = function(event) {
+    toast("Voice transcription error: "+event.error, "error");
+  };
+  recognition.onend = function() {
+    state.career.voiceRecognition = null;
+  };
+  recognition.start();
+  toast("Listening… speak your answer, then pause or click the microphone again.");
+}
+
 async function generateInterview() {
   const roleId = $("#career-role").value;
   const level = $("#career-level").value;
+  const persona = selectedInterviewer();
   if (!roleId) return;
   state.career.selectedRole = roleId;
+  state.career.interviewer = persona;
   $("#simulation-role").value = roleId;
+  updateCareerLevelExpectation();
+
   try {
     const session = await api("/api/interview", {
       method:"POST",
       body:JSON.stringify({role_id:roleId, level:level})
     });
     state.career.currentSession = session;
+
     const questions = session.questions.map(function(q, idx) {
       return '<div class="question-card interactive-question" data-question-index="'+idx+'">' +
         '<div class="question-dimension">'+esc(String(idx+1).padStart(2,"0"))+' · '+esc(q.dimension).toUpperCase()+'</div>' +
-        '<p>'+esc(q.question)+'</p>' +
-        '<textarea class="answer-editor interview-answer" rows="6" data-question-index="'+idx+'" placeholder="Answer as you would in the interview. Use concrete technical decisions, evidence, tradeoffs, and metrics where relevant."></textarea>' +
-        '<div class="answer-actions"><button class="button primary evaluate-interview" data-question-index="'+idx+'">Evaluate Answer</button><span class="subtle-copy">Your answer stays local in the Career Lab attempt store.</span></div>' +
+        '<p class="interview-question-text">'+esc(q.question)+'</p>' +
+        '<div class="voice-actions"><button class="button subtle speak-question" data-question-index="'+idx+'">🔊 Ask aloud</button><button class="button subtle dictate-answer" data-question-index="'+idx+'">🎙 Answer by voice</button></div>' +
+        '<textarea class="answer-editor interview-answer" rows="7" data-question-index="'+idx+'" placeholder="Answer as you would in the interview. Use concrete decisions, technical mechanisms, evidence, tradeoffs, scale, and metrics appropriate to the selected level."></textarea>' +
+        '<div class="answer-actions"><button class="button primary evaluate-interview" data-question-index="'+idx+'">Evaluate Answer</button><span class="subtle-copy">Revise and resubmit until you reach mastery.</span></div>' +
         '<div class="evaluation-result" id="interview-result-'+idx+'"></div>' +
         '</div>';
     }).join("");
 
+    const personaMarkup = persona
+      ? '<div class="interviewer-card"><div class="interviewer-avatar">'+esc(persona.initials)+'</div><div><b>'+esc(persona.name)+'</b><span>'+esc(persona.title)+'</span><p>'+esc(persona.style)+'</p></div></div>'
+      : "";
+
     $("#interview-session").className = "interview-session";
     $("#interview-session").innerHTML =
-      '<div class="interview-head"><div class="lab-domain">'+esc(session.role.group).toUpperCase()+'</div>' +
-      '<h3>'+esc(session.role.name)+' · '+esc(session.level).toUpperCase()+'</h3>' +
-      '<div class="subtle-copy">'+esc(session.role.summary)+'</div>' +
-      '<div class="scorecard-row">'+session.scorecard.map(function(s){return '<span class="scorecard-chip">'+esc(s)+'</span>';}).join("")+'</div></div>' +
-      '<div class="interview-instructions"><b>How to use this:</b> Answer one question at a time. Submit it to get a deterministic rubric score, specific strengths, missing points, an exemplar answer, and a next-step recommendation.</div>' +
+      '<div class="interview-head"><div><div class="lab-domain">'+esc(session.role.group).toUpperCase()+'</div>' +
+      '<h3>'+esc(session.role.name)+' · '+esc(session.level_profile ? session.level_profile.label.toUpperCase() : session.level.toUpperCase())+'</h3>' +
+      '<div class="subtle-copy">'+esc(session.role.summary)+'</div></div>'+personaMarkup+'</div>' +
+      '<div class="level-session-expectation">'+esc(session.level_profile ? session.level_profile.expectation : "")+'</div>' +
+      '<div class="scorecard-row">'+session.scorecard.map(function(s){return '<span class="scorecard-chip">'+esc(s)+'</span>';}).join("")+'</div>' +
+      '<div class="interview-instructions"><b>Mastery loop:</b> answer → evaluate → study the critique and exemplar → revise → submit again. The target score is <b>'+esc(state.career.evaluator ? state.career.evaluator.mastery_score : 95)+'/100</b>.</div>' +
       '<div class="question-list">'+questions+'</div>';
 
     $$(".evaluate-interview").forEach(function(btn) {
       btn.addEventListener("click", function() {
         evaluateInterviewQuestion(Number(btn.dataset.questionIndex));
+      });
+    });
+    $$(".speak-question").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        const q = session.questions[Number(btn.dataset.questionIndex)];
+        if (q) speakInterviewText((persona ? persona.name + " asks: " : "") + q.question);
+      });
+    });
+    $$(".dictate-answer").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        const editor = $('.interview-answer[data-question-index="'+btn.dataset.questionIndex+'"]');
+        if (editor) dictateInto(editor);
       });
     });
     renderCareer($("#role-search").value);
@@ -215,6 +333,12 @@ async function evaluateInterviewQuestion(index) {
     const root = $("#interview-result-"+index);
     root.innerHTML = evaluationMarkup(result);
     root.classList.add("visible");
+    const apply = root.querySelector(".apply-improved");
+    if (apply) apply.addEventListener("click", function(){
+      editor.value = result.improved_answer || result.model_answer || editor.value;
+      editor.focus();
+      toast("Improved draft loaded. Edit it in your own words, then evaluate again.");
+    });
   } catch (err) {
     toast(err.message, "error");
   }
@@ -223,15 +347,34 @@ async function evaluateInterviewQuestion(index) {
 function evaluationMarkup(result) {
   const strengths = (result.strengths || []).map(function(x){return '<li>'+esc(x)+'</li>';}).join("");
   const improvements = (result.improvements || []).map(function(x){return '<li>'+esc(x)+'</li>';}).join("");
-  return '<div class="evaluation-head"><div><div class="label">EVALUATION</div><strong>'+esc(result.score)+'/100 · '+esc(result.quality)+'</strong></div><div class="score-meter"><i style="width:'+Math.max(0,Math.min(100,result.score))+'%"></i></div></div>' +
+  const mastered = Boolean(result.mastered);
+  const mode = result.evaluation_mode || "deterministic";
+  const improved = result.improved_answer || result.model_answer || "";
+  const weights = result.rubric_weights || {};
+  const weightMarkup = Object.keys(weights).length
+    ? '<div class="rubric-weights">'+Object.entries(weights).map(function(entry){
+        return '<span><b>'+esc(entry[1])+'%</b> '+esc(entry[0].replaceAll("_"," "))+'</span>';
+      }).join("")+'</div>'
+    : "";
+  const attemptMarkup = result.attempt_number
+    ? '<div class="attempt-strip"><span>ATTEMPT <b>#'+esc(result.attempt_number)+'</b></span><span>PREVIOUS BEST <b>'+esc(result.previous_best_score || 0)+'</b></span><span>BEST <b>'+esc(result.best_score || result.score)+'</b></span><span>DELTA <b>'+((result.score_delta_from_previous_best || 0) >= 0 ? "+" : "")+esc(result.score_delta_from_previous_best || 0)+'</b></span></div>'
+    : "";
+  const modelMarkup = result.model
+    ? '<span class="evaluation-model">'+esc(result.model)+'</span>'
+    : '<span class="evaluation-model">'+esc(mode)+'</span>';
+
+  return attemptMarkup +
+    '<div class="evaluation-head"><div><div class="label">EVALUATION · '+esc(mode.toUpperCase())+'</div><strong>'+esc(result.score)+'/100 · '+esc(result.quality)+'</strong>'+modelMarkup+'</div><div class="mastery-badge '+(mastered ? "mastered" : "retry")+'">'+(mastered ? "MASTERED" : "RETRY TO "+esc(result.mastery_score || 95))+'</div><div class="score-meter"><i style="width:'+Math.max(0,Math.min(100,result.score))+'%"></i></div></div>' +
+    weightMarkup +
     '<div class="feedback-grid"><div><div class="feedback-title good">WHAT WORKED</div><ul>'+strengths+'</ul></div><div><div class="feedback-title improve">WHAT TO STRENGTHEN</div><ul>'+improvements+'</ul></div></div>' +
-    '<div class="model-answer"><div class="feedback-title">EXEMPLAR ANSWER / RESPONSE SHAPE</div><p>'+esc(result.model_answer)+'</p></div>' +
-    '<div class="next-step"><b>Next:</b> '+esc(result.next_step || "Refine the answer and retry.")+'</div>';
+    '<div class="model-answer"><div class="feedback-title">BEST SAMPLE ANSWER</div><p>'+esc(result.model_answer || "")+'</p></div>' +
+    (improved ? '<div class="model-answer improved-answer"><div class="feedback-title">IMPROVED VERSION OF YOUR ANSWER</div><p>'+esc(improved)+'</p><button class="button subtle apply-improved">Load this into my answer</button></div>' : '') +
+    '<div class="next-step"><b>Next attempt:</b> '+esc(result.retry_instruction || result.next_step || "Refine the answer and retry.")+'</div>';
 }
 
 function setCareerMode(mode) {
   state.career.mode = mode;
-  $$(".career-mode-tab").forEach(function(tab){tab.classList.toggle("active", tab.dataset.careerMode === mode);});
+  $$$(".career-mode-tab").forEach(function(tab){tab.classList.toggle("active", tab.dataset.careerMode === mode);});
   $("#career-interview-panel").classList.toggle("active", mode === "interview");
   $("#career-simulation-panel").classList.toggle("active", mode === "simulation");
   if (mode === "simulation") {
@@ -284,7 +427,7 @@ function loadSimulation() {
       '<div class="hint-panel" id="hints-'+esc(t.task_id)+'"></div>' +
       '<div class="answer-actions"><button class="button subtle reveal-hint" data-task="'+esc(t.task_id)+'">Show Hint</button></div>' +
       '<textarea class="answer-editor simulation-answer" rows="7" data-task="'+esc(t.task_id)+'" placeholder="Write your finding, analysis, query/tool idea, decision, or remediation here."></textarea>' +
-      '<div class="answer-actions"><button class="button primary evaluate-simulation" data-task="'+esc(t.task_id)+'">Validate Task</button></div>' +
+      '<div class="answer-actions"><button class="button subtle dictate-simulation" data-task="'+esc(t.task_id)+'">🎙 Answer by voice</button><button class="button primary evaluate-simulation" data-task="'+esc(t.task_id)+'">Validate Task</button></div>' +
       '<div class="evaluation-result" id="simulation-result-'+esc(t.task_id)+'"></div>' +
       '</article>';
   }).join("");
@@ -325,10 +468,10 @@ function loadSimulation() {
   $("#run-simulation-search").addEventListener("click", runSimulationSearch);
   $("#simulation-search").addEventListener("keydown", function(e){if(e.key === "Enter") runSimulationSearch();});
   $$(".reveal-hint").forEach(function(btn){btn.addEventListener("click", function(){revealHint(btn.dataset.task);});});
-  $(".evaluate-simulation").forEach(function(btn){btn.addEventListener("click", function(){evaluateSimulationTaskUI(btn.dataset.task);});});
-  $(".vm-start").forEach(function(btn){btn.addEventListener("click", function(){vmAction("/api/vm/start", btn.dataset.blueprint);});});
-  $(".vm-reset").forEach(function(btn){btn.addEventListener("click", function(){vmAction("/api/vm/reset", btn.dataset.blueprint);});});
-  $(".vm-stop").forEach(function(btn){btn.addEventListener("click", function(){vmAction("/api/vm/stop", btn.dataset.blueprint);});});
+  $$(".evaluate-simulation").forEach(function(btn){btn.addEventListener("click", function(){evaluateSimulationTaskUI(btn.dataset.task);});});
+  $$(".vm-start").forEach(function(btn){btn.addEventListener("click", function(){vmAction("/api/vm/start", btn.dataset.blueprint);});});
+  $$(".vm-reset").forEach(function(btn){btn.addEventListener("click", function(){vmAction("/api/vm/reset", btn.dataset.blueprint);});});
+  $$(".vm-stop").forEach(function(btn){btn.addEventListener("click", function(){vmAction("/api/vm/stop", btn.dataset.blueprint);});});
   if (runtime.blueprint_id && state.career.vmCatalog && state.career.vmCatalog.host && state.career.vmCatalog.host.available) {
     vmAction("/api/vm/status", runtime.blueprint_id, true);
   }
@@ -414,6 +557,12 @@ async function evaluateSimulationTaskUI(taskId) {
     const root = $("#simulation-result-"+taskId);
     root.innerHTML = evaluationMarkup(result);
     root.classList.add("visible");
+    const apply = root.querySelector(".apply-improved");
+    if (apply) apply.addEventListener("click", function(){
+      editor.value = result.improved_answer || result.model_answer || editor.value;
+      editor.focus();
+      toast("Improved draft loaded. Refine it, then validate again.");
+    });
   } catch (err) {
     toast(err.message, "error");
   }
@@ -542,6 +691,7 @@ async function bootV2() {
     api("/api/targets"),
     api("/api/career/attempts"),
     api("/api/vm/catalog"),
+    api("/api/career/evaluator"),
   ]);
   state.academy.catalog = values[0];
   state.academy.progress = values[1];
@@ -550,10 +700,24 @@ async function bootV2() {
   state.targets.runs = values[3].runs || [];
   state.career.attempts = values[4].attempts || [];
   state.career.vmCatalog = values[5];
+  state.career.evaluator = values[6];
+
+  const evaluator = state.career.evaluator || {};
+  $("#career-evaluator-status").textContent = evaluator.available ? ("GenAI · "+(evaluator.model || "OpenAI")) : "Deterministic fallback";
+  $("#career-evaluator-note").textContent = evaluator.note || "";
+  $("#career-mastery-score").textContent = (evaluator.mastery_score || 95)+"/100";
+  updateVoiceStatus();
 
   renderAcademy();
   renderCareer("");
   renderTargets();
+  $("#career-interviewer").innerHTML = (state.career.catalog.interviewers || []).map(function(p){
+    return '<option value="'+esc(p.persona_id)+'">'+esc(p.name)+' · '+esc(p.title)+'</option>';
+  }).join("");
+  if ((state.career.catalog.interviewers || []).length) {
+    state.career.interviewer = state.career.catalog.interviewers[0];
+  }
+  updateCareerLevelExpectation();
   $("#simulation-role").innerHTML = state.career.catalog.roles.map(function(role){return '<option value="'+esc(role.role_id)+'">'+esc(role.name)+'</option>';}).join("");
   const defaultRole = $("#career-role").value || "ai-security";
   $("#simulation-role").value = defaultRole;
@@ -569,6 +733,14 @@ async function bootV2() {
     renderCareer($("#role-search").value);
     if (state.career.mode === "simulation") loadRoleSimulations($("#career-role").value);
   });
+  $("#career-level").addEventListener("change", function(){
+    updateCareerLevelExpectation();
+    if (state.career.currentSession) generateInterview();
+  });
+  $("#career-interviewer").addEventListener("change", function(){
+    state.career.interviewer = selectedInterviewer();
+    if (state.career.currentSession) generateInterview();
+  });
   $("#generate-interview").addEventListener("click", generateInterview);
   $("#simulation-role").addEventListener("change", function(){
     state.career.selectedRole = $("#simulation-role").value;
@@ -578,7 +750,7 @@ async function bootV2() {
   });
   $("#simulation-scenario").addEventListener("change", loadSimulation);
   $("#load-simulation").addEventListener("click", loadSimulation);
-  $(".career-mode-tab").forEach(function(tab){tab.addEventListener("click", function(){setCareerMode(tab.dataset.careerMode);});});
+  $$(".career-mode-tab").forEach(function(tab){tab.addEventListener("click", function(){setCareerMode(tab.dataset.careerMode);});});
   $("#register-target").addEventListener("click", registerTarget);
 
   const oldRefresh = refreshData;
@@ -589,4 +761,4 @@ async function bootV2() {
   };
 }
 
-bootV2().catch(function(err){ console.error(err); toast("v2 initialization failed: "+err.message, "error"); });
+boot().then(bootV2).catch(function(err){ console.error(err); toast("Console initialization failed: "+err.message, "error"); });

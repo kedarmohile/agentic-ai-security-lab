@@ -336,6 +336,23 @@
         <button class="career-mode-tab active" data-career-mode="interview">Interview Studio</button>
         <button class="career-mode-tab" data-career-mode="simulation">Simulation Range</button>
       </div>
+      <div class="career-system-bar">
+        <div>
+          <span class="career-system-label">EVALUATOR</span>
+          <strong id="career-evaluator-status">Checking…</strong>
+          <small id="career-evaluator-note">Loading evaluator status.</small>
+        </div>
+        <div>
+          <span class="career-system-label">MASTERY</span>
+          <strong id="career-mastery-score">95/100</strong>
+          <small>Revise and retry until the mastery threshold is reached.</small>
+        </div>
+        <div>
+          <span class="career-system-label">VOICE</span>
+          <strong id="career-voice-status">Checking…</strong>
+          <small>Questions can be spoken; supported browsers can transcribe spoken answers.</small>
+        </div>
+      </div>
       <div class="career-layout">
         <article class="panel career-role-panel">
           <div class="panel-head"><div><div class="label">ROLE TRACKS</div><div class="subtle-copy">Search and select a security discipline</div></div><span id="role-count" class="tag neutral">0 ROLES</span></div>
@@ -351,11 +368,13 @@
               </div>
               <span class="tag neutral">ANSWER → EVALUATE → IMPROVE</span>
             </div>
-            <div class="interview-controls">
+            <div class="interview-controls interview-controls-expanded">
               <label>ROLE<select id="career-role"></select></label>
-              <label>LEVEL<select id="career-level"><option>entry</option><option>mid</option><option selected>senior</option><option>principal</option><option>manager</option><option>executive</option></select></label>
+              <label>LEVEL<select id="career-level"><option value="entry">Entry</option><option value="mid">Mid</option><option value="senior" selected>Senior</option><option value="principal">Principal</option><option value="manager">Manager</option><option value="executive">Executive</option></select></label>
+              <label>INTERVIEWER<select id="career-interviewer"></select></label>
               <button id="generate-interview" class="button primary">Generate Session</button>
             </div>
+            <div id="career-level-expectation" class="level-expectation"></div>
             <div id="interview-session" class="interview-session empty-state">Choose a role and generate a session.</div>
           </article>
 

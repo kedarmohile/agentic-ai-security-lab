@@ -99,6 +99,66 @@ COMMERCIAL_REFERENCES: tuple[dict[str, Any], ...] = (
 )
 
 
+LEVEL_PROFILES: dict[str, dict[str, str]] = {
+    "entry": {
+        "label": "Entry",
+        "expectation": "Fundamentals, correct terminology, safe operational judgment, and clear escalation.",
+    },
+    "mid": {
+        "label": "Mid",
+        "expectation": "Independent execution, practical troubleshooting, control implementation, and measurable outcomes.",
+    },
+    "senior": {
+        "label": "Senior",
+        "expectation": "Deep technical judgment, architecture awareness, cross-team influence, and meaningful metrics.",
+    },
+    "principal": {
+        "label": "Principal",
+        "expectation": "Enterprise architecture, ambiguous tradeoffs, technical standards, cross-organization influence, and scale.",
+    },
+    "manager": {
+        "label": "Manager",
+        "expectation": "Team operating model, prioritization, quality mechanisms, staffing, delivery, and stakeholder management.",
+    },
+    "executive": {
+        "label": "Executive",
+        "expectation": "Enterprise risk ownership, board-level communication, investment choices, operating model, resilience, and accountability.",
+    },
+}
+
+
+INTERVIEWER_PERSONAS: tuple[dict[str, str], ...] = (
+    {
+        "persona_id": "mara-vale",
+        "name": "Mara Vale",
+        "title": "Principal Security Architect",
+        "style": "Structured, architecture-first, expects precise trust boundaries and tradeoffs.",
+        "initials": "MV",
+    },
+    {
+        "persona_id": "jon-reed",
+        "name": "Jon Reed",
+        "title": "SOC & Detection Director",
+        "style": "Evidence-driven, operational, pushes on telemetry, triage, detections, and measurable response.",
+        "initials": "JR",
+    },
+    {
+        "persona_id": "rhea-stone",
+        "name": "Rhea Stone",
+        "title": "Red Team Lead",
+        "style": "Adversarial, challenges assumptions, asks how controls fail and how you would prove exploitability safely.",
+        "initials": "RS",
+    },
+    {
+        "persona_id": "nina-park",
+        "name": "Nina Park",
+        "title": "Application & Product Security Lead",
+        "style": "Developer-focused, probes secure design, AppSec, abuse cases, and practical remediation.",
+        "initials": "NP",
+    },
+)
+
+
 ROLE_TRACKS: tuple[dict[str, Any], ...] = (
     {
         "role_id": "soc-analyst", "name": "SOC Analyst", "group": "Protection & Defense",
@@ -305,6 +365,8 @@ def career_catalog() -> dict[str, Any]:
         },
         "roles": list(ROLE_TRACKS),
         "levels": ("entry", "mid", "senior", "principal", "manager", "executive"),
+        "level_profiles": LEVEL_PROFILES,
+        "interviewers": list(INTERVIEWER_PERSONAS),
         "frameworks": framework_catalog(),
     }
 
@@ -313,7 +375,7 @@ def interview_session(role_id: str, level: str = "senior") -> dict[str, Any]:
     role = next((r for r in ROLE_TRACKS if r["role_id"] == role_id), None)
     if role is None:
         raise ValueError(f"unknown role: {role_id}")
-    if level not in {"entry", "mid", "senior", "principal", "manager", "executive"}:
+    if level not in LEVEL_PROFILES:
         raise ValueError(f"unsupported level: {level}")
 
     focus = role["focus"]
@@ -327,16 +389,29 @@ def interview_session(role_id: str, level: str = "senior") -> dict[str, Any]:
         {"dimension": "Tradeoffs", "question": f"A business-critical launch conflicts with one of your {role['name']} controls. How do you decide whether to block, mitigate, redesign, or accept risk?"},
         {"dimension": "Behavioral / influence", "question": "Tell me about a time you disagreed with engineering, operations, or leadership on a security decision. How did you influence the outcome?"},
     ]
-    if level in {"principal", "manager", "executive"}:
+    if level == "principal":
         questions.extend([
-            {"dimension": "Scale", "question": f"How would you build a 12-month {role['name']} strategy across a global enterprise, including operating model, staffing, funding, and executive reporting?"},
-            {"dimension": "Leadership", "question": f"How do you decide what your {role['name']} team should own directly versus federate to engineering or operations?"},
+            {"dimension": "Scale", "question": f"You are the principal for {role['name']} across multiple business units. Define the technical standards, reference architecture, exception model, and 12-month roadmap you would establish."},
+            {"dimension": "Leadership", "question": f"How would you influence directors, principal engineers, and platform owners when you have enterprise accountability but little direct authority?"},
+        ])
+    elif level == "manager":
+        questions.extend([
+            {"dimension": "Scale", "question": f"Build the operating plan for a {role['name']} team: staffing mix, backlog prioritization, service levels, quality controls, and quarterly outcomes."},
+            {"dimension": "Leadership", "question": "A strong engineer repeatedly delivers technically excellent work but creates cross-team friction. How do you handle performance, coaching, and delivery risk?"},
+        ])
+    elif level == "executive":
+        questions.extend([
+            {"dimension": "Scale", "question": f"You own enterprise risk for {role['name']}. Present the three-year strategy, investment thesis, operating model, and resilience metrics you would take to the board."},
+            {"dimension": "Leadership", "question": f"A major business unit wants to accept a material {role['name']} risk to hit a revenue commitment. How do you frame the decision for the CEO and board, and who owns the residual risk?"},
+            {"dimension": "Executive judgment", "question": "Your security budget is cut 20% while threat exposure increases. What do you stop, protect, consolidate, automate, or transfer—and how do you defend those choices?"},
         ])
 
     return {
         "role": role,
         "level": level,
+        "level_profile": LEVEL_PROFILES[level],
         "questions": questions,
+        "interviewers": list(INTERVIEWER_PERSONAS),
         "scorecard": ("correctness", "depth", "structure", "risk judgment", "practicality", "metrics", "communication"),
     }
 

@@ -48,17 +48,82 @@ Generated questions span:
 
 Each question includes an answer editor and **Evaluate Answer** action.
 
-The deterministic evaluation returns:
+Career Lab uses a two-layer evaluator:
 
-- score;
+1. a deterministic local rubric that always works offline;
+2. an optional GenAI evaluator using the OpenAI Responses API when `OPENAI_API_KEY` is configured.
+
+The evaluation returns:
+
+- weighted score;
 - qualitative rating;
 - strengths;
 - specific missing concepts;
-- constructive improvement points;
-- an exemplar answer / response shape;
-- a recommended next step.
+- critical but constructive improvement points;
+- a best sample answer;
+- an improved rewrite of the learner's own answer;
+- attempt number, previous best, score delta, and best score;
+- a mastery decision and next-attempt instruction.
+
+The default mastery threshold is **95/100**. Learners can revise and resubmit the same answer until they reach mastery.
+
+### Enable GenAI evaluation
+
+The default model is `gpt-6-luna`. Override it with `AASL_EVAL_MODEL`.
+
+```bash
+export OPENAI_API_KEY="your-api-key"
+export AASL_EVAL_PROVIDER="auto"
+export AASL_EVAL_MODEL="gpt-6-luna"
+export AASL_MASTERY_SCORE="95"
+
+agentic-ai-console --port 8877 --state-dir local-data/console
+```
+
+If the API key is absent or the model call fails, AASL falls back to the deterministic local evaluator.
+
+The API key is read from the process environment and is not stored by AASL.
+
+### Weighted rubrics
+
+The evaluator weights change by context.
+
+For a normal interview answer, the rubric emphasizes:
+
+- technical correctness;
+- role depth;
+- risk judgment;
+- structure/communication;
+- evidence/metrics;
+- practicality.
+
+Principal/manager sessions increase architecture, operating-model, scale, and influence weight.
+
+Executive sessions emphasize:
+
+- risk judgment and tradeoffs;
+- enterprise scale and operating model;
+- executive communication;
+- technical correctness;
+- metrics/accountability;
+- practicality.
+
+Simulation tasks emphasize technical correctness, evidence/reasoning, remediation/decision quality, completeness, and communication.
 
 The evaluator is guidance, not a hiring decision.
+
+## Interviewer personas and voice
+
+Interview Studio includes interviewer personas with different styles, such as architecture-first, SOC/detection, red-team, and AppSec/product-security interviewers.
+
+In supported browsers:
+
+- **Ask aloud** uses browser speech synthesis to speak the question;
+- **Answer by voice** uses browser speech recognition to transcribe the learner's response into the answer editor.
+
+Voice is optional. Typed answers remain the universal fallback.
+
+Browser speech recognition support varies by browser/platform; AASL does not require a voice API key for the browser-native mode.
 
 ## Simulation Range
 

@@ -14,9 +14,10 @@ from typing import Any
 from urllib.parse import urlparse
 
 from .orchestration import RunStore, catalog, execute_lab, status
-from .product_experiences import ROLE_TRACKS, TargetRegistry, academy_catalog, academy_progress, career_catalog, interview_session
+from .product_experiences import LEVEL_PROFILES, ROLE_TRACKS, TargetRegistry, academy_catalog, academy_progress, career_catalog, interview_session
 from .career_simulations import CareerAttemptStore, career_simulation_catalog, evaluate_interview_answer, evaluate_simulation_task
 from .vm_runtime import MultipassRuntime, blueprint_for_scenario, vm_catalog
+from .model_evaluator import evaluate_with_openai, evaluator_status
 
 
 def _asset_root() -> Any:
@@ -24,7 +25,7 @@ def _asset_root() -> Any:
 
 
 class ConsoleHandler(BaseHTTPRequestHandler):
-    server_version = "AASLConsole/0.8"
+    server_version = "AASLConsole/0.9"
 
     @property
     def store(self) -> RunStore:
@@ -91,6 +92,9 @@ class ConsoleHandler(BaseHTTPRequestHandler):
         if path == "/api/career/attempts":
             self._json({"attempts": self.career_attempts.attempts()})
             return
+        if path == "/api/career/evaluator":
+            self._json(evaluator_status())
+            return
         if path == "/api/vm/catalog":
             payload = vm_catalog()
             payload["host"] = self.vm_runtime.host_info()
@@ -135,22 +139,111 @@ class ConsoleHandler(BaseHTTPRequestHandler):
                 role = next((r for r in ROLE_TRACKS if r["role_id"] == role_id), None)
                 if role is None:
                     raise ValueError(f"unknown role: {role_id}")
-                result = evaluate_interview_answer(
+                level = str(payload.get("level", "senior"))
+                dimension = str(payload.get("dimension", ""))
+                question = str(payload.get("question", ""))
+                answer = str(payload.get("answer", ""))
+                fallback = evaluate_interview_answer(
                     role,
-                    str(payload.get("level", "senior")),
-                    str(payload.get("dimension", "")),
-                    str(payload.get("question", "")),
-                    str(payload.get("answer", "")),
+                    level,
+                    dimension,
+                    question,
+                    answer,
+                )
+                prior_attempts = [
+                    row
+                    for row in self.career_attempts.attempts()
+                    if row.get("kind") == "interview"
+                    and row.get("role_id") == role_id
+                    and row.get("level") == level
+                    and row.get("dimension") == dimension
+                    and row.get("question") == question
+                ][:5]
+                result = evaluate_with_openai(
+                    context={
+                        "kind": "interview",
+                        "role": role,
+                        "level": level,
+                        "level_expectation": LEVEL_PROFILES.get(level, {}),
+                        "dimension": dimension,
+                        "question": question,
+                        "previous_attempts": [
+                            {
+                                "score": row.get("score"),
+                                "missing_concepts": row.get("missing_concepts"),
+                                "improvements": row.get("improvements"),
+                            }
+                            for row in prior_attempts
+                        ],
+                    },
+                    answer=answer,
+                    fallback=fallback,
                 )
                 record = self.career_attempts.append("interview", result)
                 self._json(record, HTTPStatus.CREATED)
                 return
             if path == "/api/career/evaluate-simulation":
-                result = evaluate_simulation_task(
-                    str(payload.get("scenario_id", "")),
-                    str(payload.get("task_id", "")),
-                    str(payload.get("answer", "")),
-                    int(payload.get("hints_used", 0)),
+                scenario_id = str(payload.get("scenario_id", ""))
+                task_id = str(payload.get("task_id", ""))
+                answer = str(payload.get("answer", ""))
+                hints_used = int(payload.get("hints_used", 0))
+                fallback = evaluate_simulation_task(
+                    scenario_id,
+                    task_id,
+                    answer,
+                    hints_used,
+                )
+                scenario = next(
+                    (
+                        row
+                        for row in career_simulation_catalog(None)["scenarios"]
+                        if row["scenario_id"] == scenario_id
+                    ),
+                    None,
+                )
+                task = next(
+                    (
+                        row
+                        for row in (scenario or {}).get("tasks", [])
+                        if row["task_id"] == task_id
+                    ),
+                    None,
+                )
+                prior_attempts = [
+                    row
+                    for row in self.career_attempts.attempts()
+                    if row.get("kind") == "simulation"
+                    and row.get("scenario_id") == scenario_id
+                    and row.get("task_id") == task_id
+                ][:5]
+                result = evaluate_with_openai(
+                    context={
+                        "kind": "simulation",
+                        "scenario": {
+                            "scenario_id": scenario_id,
+                            "title": (scenario or {}).get("title"),
+                            "category": (scenario or {}).get("category"),
+                            "difficulty": (scenario or {}).get("difficulty"),
+                            "objectives": (scenario or {}).get("objectives"),
+                            "skills": (scenario or {}).get("skills"),
+                            "owasp_web": (scenario or {}).get("owasp_web"),
+                            "owasp_llm": (scenario or {}).get("owasp_llm"),
+                            "owasp_agentic": (scenario or {}).get("owasp_agentic"),
+                            "atlas": (scenario or {}).get("atlas"),
+                        },
+                        "task": task or {"task_id": task_id},
+                        "hints_used": hints_used,
+                        "previous_attempts": [
+                            {
+                                "score": row.get("score"),
+                                "missing_concepts": row.get("missing_concepts"),
+                                "improvements": row.get("improvements"),
+                            }
+                            for row in prior_attempts
+                        ],
+                    },
+                    answer=answer,
+                    fallback=fallback,
                 )
                 record = self.career_attempts.append("simulation", result)
                 self._json(record, HTTPStatus.CREATED)
