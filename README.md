@@ -287,6 +287,8 @@ Product documentation:
 - [UI Design System](docs/ui-design-system.md)
 - [Security Framework Stack](docs/security-frameworks.md)
 - [Portable VM Labs](docs/vm-labs.md)
+- [Cloud Lab Scaling](docs/cloud-lab-scaling.md)
+- [Hyperlink Audit](docs/link-audit.md)
 - [Target Lab](docs/target-lab.md)
 - [Scoring Model](docs/console-scoring.md)
 - [Test Your Own Application](docs/test-your-app.md)
