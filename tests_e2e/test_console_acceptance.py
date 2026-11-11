@@ -1,4 +1,5 @@
 import json
+import re
 import threading
 import urllib.request
 from pathlib import Path
@@ -57,40 +58,26 @@ def test_paid_acceptance_clicks_primary_product_surface(tmp_path: Path) -> None:
                 "evidence",
             ):
                 page.locator(f'.nav-item[data-view="{view}"]').click()
-                expect(page.locator(f"#view-{view}")).to_have_class(
-                    lambda value: "active" in value.split()
-                )
+                expect(page.locator(f"#view-{view}")).to_have_class(re.compile(r".*\bactive\b.*"))
 
             # Top-bar pricing and product tabs.
             page.locator("#pricing-button").click()
-            expect(page.locator("#view-pricing")).to_have_class(
-                lambda value: "active" in value.split()
-            )
+            expect(page.locator("#view-pricing")).to_have_class(re.compile(r".*\bactive\b.*"))
             for product in ("start", "career", "target"):
                 page.locator(f'.product-tab[data-product-view="{product}"]').click()
-                expect(page.locator(f"#view-{product}")).to_have_class(
-                    lambda value: "active" in value.split()
-                )
+                expect(page.locator(f"#view-{product}")).to_have_class(re.compile(r".*\bactive\b.*"))
 
             # Command palette opens and a navigation item closes it again.
             page.locator("#command-button").click()
-            expect(page.locator("#command-palette")).to_have_class(
-                lambda value: "open" in value.split()
-            )
+            expect(page.locator("#command-palette")).to_have_class(re.compile(r".*\bopen\b.*"))
             page.locator(".palette-item").first.click()
-            expect(page.locator("#command-palette")).not_to_have_class(
-                lambda value: "open" in value.split()
-            )
+            expect(page.locator("#command-palette")).not_to_have_class(re.compile(r".*\bopen\b.*"))
 
             # Run-lab drawer opens/closes.
             page.locator("#open-runner").click()
-            expect(page.locator("#run-drawer")).to_have_class(
-                lambda value: "open" in value.split()
-            )
+            expect(page.locator("#run-drawer")).to_have_class(re.compile(r".*\bopen\b.*"))
             page.locator("#close-runner").click()
-            expect(page.locator("#run-drawer")).not_to_have_class(
-                lambda value: "open" in value.split()
-            )
+            expect(page.locator("#run-drawer")).not_to_have_class(re.compile(r".*\bopen\b.*"))
 
             # Quick deterministic run produces a run detail.
             page.locator('.nav-item[data-view="command"]').click()
@@ -146,35 +133,23 @@ def test_paid_acceptance_clicks_primary_product_surface(tmp_path: Path) -> None:
             # Pricing page monthly/annual + all plan CTAs.
             page.locator("#pricing-button").click()
             page.locator('.billing-option[data-billing="annual"]').click()
-            expect(page.locator('.billing-option[data-billing="annual"]')).to_have_class(
-                lambda value: "active" in value.split()
-            )
+            expect(page.locator('.billing-option[data-billing="annual"]')).to_have_class(re.compile(r".*\bactive\b.*"))
 
             page.locator('.pricing-cta[data-plan="free"]').click()
-            expect(page.locator("#view-start")).to_have_class(
-                lambda value: "active" in value.split()
-            )
+            expect(page.locator("#view-start")).to_have_class(re.compile(r".*\bactive\b.*"))
 
             page.locator("#pricing-button").click()
             page.locator('.pricing-cta[data-plan="core"]').click()
-            expect(page.locator("#view-career")).to_have_class(
-                lambda value: "active" in value.split()
-            )
-            expect(page.locator("#career-simulation-panel")).to_have_class(
-                lambda value: "active" in value.split()
-            )
+            expect(page.locator("#view-career")).to_have_class(re.compile(r".*\bactive\b.*"))
+            expect(page.locator("#career-simulation-panel")).to_have_class(re.compile(r".*\bactive\b.*"))
 
             page.locator("#pricing-button").click()
             page.locator('.pricing-cta[data-plan="pro"]').click()
-            expect(page.locator("#view-career")).to_have_class(
-                lambda value: "active" in value.split()
-            )
+            expect(page.locator("#view-career")).to_have_class(re.compile(r".*\bactive\b.*"))
 
             page.locator("#pricing-button").click()
             page.locator('.pricing-cta[data-plan="teams"]').click()
-            expect(page.locator("#view-target")).to_have_class(
-                lambda value: "active" in value.split()
-            )
+            expect(page.locator("#view-target")).to_have_class(re.compile(r".*\bactive\b.*"))
 
             # Career Interview Studio: level switching, generation, evaluation.
             page.locator('.product-tab[data-product-view="career"]').click()
