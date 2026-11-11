@@ -289,6 +289,7 @@ Product documentation:
 - [Portable VM Labs](docs/vm-labs.md)
 - [Cloud Lab Scaling](docs/cloud-lab-scaling.md)
 - [Hyperlink Audit](docs/link-audit.md)
+- [Feature Acceptance Audit](docs/feature-audit.md)
 - [Pricing](docs/pricing.md)
 - [Target Lab](docs/target-lab.md)
 - [Scoring Model](docs/console-scoring.md)
