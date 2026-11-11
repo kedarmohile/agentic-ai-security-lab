@@ -14,6 +14,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 from .orchestration import RunStore, catalog, execute_lab, status
+from .product_experiences import TargetRegistry, academy_catalog, academy_progress, career_catalog, interview_session
 
 
 def _asset_root() -> Any:
@@ -21,11 +22,15 @@ def _asset_root() -> Any:
 
 
 class ConsoleHandler(BaseHTTPRequestHandler):
-    server_version = "AASLConsole/0.6"
+    server_version = "AASLConsole/0.7"
 
     @property
     def store(self) -> RunStore:
         return self.server.store  # type: ignore[attr-defined]
+
+    @property
+    def targets(self) -> TargetRegistry:
+        return TargetRegistry(self.store.state_dir)
 
     def _json(self, payload: Any, status_code: int = HTTPStatus.OK) -> None:
         raw = json.dumps(payload).encode("utf-8")
@@ -64,6 +69,18 @@ class ConsoleHandler(BaseHTTPRequestHandler):
         if path == "/api/catalog":
             self._json(catalog())
             return
+        if path == "/api/academy":
+            self._json(academy_catalog())
+            return
+        if path == "/api/academy/progress":
+            self._json(academy_progress(self.store))
+            return
+        if path == "/api/career":
+            self._json(career_catalog())
+            return
+        if path == "/api/targets":
+            self._json({"targets": self.targets.targets(), "runs": self.targets.target_runs()})
+            return
         if path == "/api/status":
             self._json(status(self.store))
             return
@@ -86,6 +103,30 @@ class ConsoleHandler(BaseHTTPRequestHandler):
                 record = execute_lab(str(payload.get("lab_id")), str(payload.get("mode")))
                 self.store.append_run(record)
                 self._json(record, HTTPStatus.CREATED)
+                return
+            if path == "/api/interview":
+                session = interview_session(str(payload.get("role_id")), str(payload.get("level", "senior")))
+                self._json(session, HTTPStatus.CREATED)
+                return
+            if path == "/api/targets":
+                target = self.targets.register(str(payload.get("name", "")), str(payload.get("source_type", "")), str(payload.get("location", "")))
+                self._json(target, HTTPStatus.CREATED)
+                return
+            if path == "/api/targets/analyze":
+                target = self.targets.analyze(str(payload.get("target_id", "")))
+                self._json(target, HTTPStatus.CREATED)
+                return
+            if path == "/api/targets/clone":
+                target = self.targets.clone_github(str(payload.get("target_id", "")))
+                self._json(target, HTTPStatus.CREATED)
+                return
+            if path == "/api/targets/scaffold":
+                target = self.targets.scaffold(str(payload.get("target_id", "")))
+                self._json(target, HTTPStatus.CREATED)
+                return
+            if path == "/api/targets/run":
+                result = self.targets.run(str(payload.get("target_id", "")), str(payload.get("lab_id", "")), str(payload.get("mode", "secure")))
+                self._json(result, HTTPStatus.CREATED)
                 return
             if path == "/api/cases":
                 title = str(payload.get("title", "")).strip()
@@ -110,7 +151,7 @@ class ConsoleServer(ThreadingHTTPServer):
         self.store = RunStore(state_dir)
 
 
-def create_server(host: str = "127.0.0.1", port: int = 8765, state_dir: Path | None = None) -> ConsoleServer:
+def create_server(host: str = "127.0.0.1", port: int = 8877, state_dir: Path | None = None) -> ConsoleServer:
     resolved_state = state_dir or Path(os.environ.get("AASL_STATE_DIR", ".agentic-ai-security-lab"))
     return ConsoleServer((host, port), resolved_state)
 
@@ -118,7 +159,7 @@ def create_server(host: str = "127.0.0.1", port: int = 8765, state_dir: Path | N
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run the Agentic AI Security Console.")
     parser.add_argument("--host", default="127.0.0.1")
-    parser.add_argument("--port", type=int, default=8765)
+    parser.add_argument("--port", type=int, default=8877)
     parser.add_argument("--state-dir", type=Path, default=None)
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
@@ -129,8 +170,14 @@ def main() -> int:
         if missing:
             raise SystemExit("missing console assets: " + ", ".join(missing))
         data = catalog()
+        academy = academy_catalog()
+        career = career_catalog()
         if len(data["labs"]) != 5 or len(data["hunts"]) != 5:
             raise SystemExit("console catalog is incomplete")
+        if len(academy["atlas_tactics"]) != 16:
+            raise SystemExit("MITRE ATLAS tactic map is incomplete")
+        if len(career["roles"]) < 24:
+            raise SystemExit("Career Lab role catalog is incomplete")
         print("security console assets and catalog: ok")
         return 0
 

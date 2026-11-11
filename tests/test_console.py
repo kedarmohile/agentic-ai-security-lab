@@ -95,6 +95,11 @@ def test_console_assets_are_served_without_external_cdn(tmp_path: Path) -> None:
             js = response.read().decode("utf-8")
         assert "AASL Security Console" in html
         assert "Start Here" in html
+        assert "Academy" in html
+        assert "Career Lab" in html
+        assert "Target Lab" in html
+        assert "COMMERCIAL REFERENCE" in html
+        assert "MITRE ATLAS COVERAGE MAP" in html
         assert "WHAT THIS PLATFORM DOES" in html
         assert "TEST YOUR OWN APPLICATION" in html
         assert "Command Center" in html
@@ -114,7 +119,7 @@ def test_console_readability_overrides_are_present() -> None:
     css = files("agentic_ai_security_lab").joinpath("console_assets", "styles.css").read_text(encoding="utf-8")
 
     assert "html { font-size: 16px; }" in css
-    assert "body { font-size: 15px;" in css
+    assert "body { font-size: 17px;" in css
     assert ".hunt-title { font-size: 14px;" in css
     assert ".json-block { font-size: 12px;" in css
 
@@ -124,3 +129,62 @@ def test_target_integration_guide_and_example_ship_with_package_repo() -> None:
 
     assert Path("docs/test-your-app.md").is_file()
     assert Path("examples/targets/lab01_memory_adapter.py").is_file()
+
+
+def test_v2_product_apis(tmp_path: Path) -> None:
+    server = create_server("127.0.0.1", 0, tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    base = f"http://127.0.0.1:{server.server_port}"
+
+    try:
+        with urllib.request.urlopen(f"{base}/api/academy") as response:
+            academy = json.loads(response.read().decode("utf-8"))
+        assert len(academy["atlas_tactics"]) == 16
+
+        with urllib.request.urlopen(f"{base}/api/career") as response:
+            career = json.loads(response.read().decode("utf-8"))
+        assert len(career["roles"]) >= 24
+
+        interview_request = urllib.request.Request(
+            f"{base}/api/interview",
+            data=json.dumps({"role_id": "soc-analyst", "level": "senior"}).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(interview_request) as response:
+            session = json.loads(response.read().decode("utf-8"))
+        assert session["role"]["name"] == "SOC Analyst"
+        assert len(session["questions"]) >= 8
+
+        target_root = tmp_path / "repo"
+        target_root.mkdir()
+        (target_root / "agent.py").write_text("def browser_tool(): pass\n", encoding="utf-8")
+        register_request = urllib.request.Request(
+            f"{base}/api/targets",
+            data=json.dumps(
+                {
+                    "name": "local-demo",
+                    "source_type": "local",
+                    "location": str(target_root),
+                }
+            ).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(register_request) as response:
+            target = json.loads(response.read().decode("utf-8"))
+
+        analyze_request = urllib.request.Request(
+            f"{base}/api/targets/analyze",
+            data=json.dumps({"target_id": target["target_id"]}).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(analyze_request) as response:
+            analyzed = json.loads(response.read().decode("utf-8"))
+        assert analyzed["analysis"]["status"] == "analyzed"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)

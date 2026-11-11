@@ -46,8 +46,69 @@
         <button id="open-runner" class="button primary">+ Run Lab</button>
       </div>
     </header>
+    <div class="product-tabs" role="tablist" aria-label="AASL product areas">
+      <button class="product-tab active" data-product-view="start"><span>01</span><b>Academy</b><small>Missions · learning paths · ATLAS</small></button>
+      <button class="product-tab" data-product-view="career"><span>02</span><b>Career Lab</b><small>Interview prep across security roles</small></button>
+      <button class="product-tab" data-product-view="target"><span>03</span><b>Target Lab</b><small>Assess your repo or application</small></button>
+    </div>
 
     <section id="view-start" class="view active">
+      <div class="academy-layout">
+        <div class="academy-main">
+          <article class="panel academy-hero">
+            <div>
+              <div class="eyebrow">ACADEMY · MISSION MODE</div>
+              <h2>Learn the attack. Prove the control. Complete the mission.</h2>
+              <p>Each mission requires both the secure control and the attack condition. Progress is earned from executed evidence, not passive reading.</p>
+            </div>
+            <div class="rank-card">
+              <div class="label">OPERATOR RANK</div>
+              <strong id="academy-rank">Recruit</strong>
+              <div class="xp-line"><span id="academy-xp">0 XP</span><span id="academy-next">Next: Analyst</span></div>
+              <div class="xp-bar"><i id="academy-xp-fill"></i></div>
+              <div class="mono tiny"><span id="academy-missions-done">0</span>/<span id="academy-missions-total">0</span> MISSIONS COMPLETE</div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-head">
+              <div><div class="label">LEARNING PATHS</div><div class="subtle-copy">Distinct mission chains with prerequisites and XP</div></div>
+              <span class="tag neutral">EVIDENCE-GATED</span>
+            </div>
+            <div id="academy-paths" class="academy-paths"></div>
+          </article>
+
+          <article class="panel atlas-panel">
+            <div class="panel-head">
+              <div>
+                <div class="label">MITRE ATLAS COVERAGE MAP</div>
+                <div class="subtle-copy">All 16 ATLAS tactics are visible; current mission links are separated from roadmap gaps.</div>
+              </div>
+              <span class="tag neutral">AGENTIC AI</span>
+            </div>
+            <div id="atlas-grid" class="atlas-grid"></div>
+          </article>
+        </div>
+
+        <aside class="reference-rail">
+          <article class="panel reference-card">
+            <div class="label">COMMERCIAL REFERENCE</div>
+            <h3>What successful cyber-readiness products get right</h3>
+            <div id="commercial-references" class="reference-list"></div>
+            <div class="reference-note">Reference patterns only. No affiliation or endorsement is implied.</div>
+          </article>
+          <article class="panel reference-card">
+            <div class="label">AASL DIFFERENTIATOR</div>
+            <h3>Same mission, three outcomes</h3>
+            <div class="reference-flow">
+              <div><b>LEARN</b><span>Reference secure/vulnerable labs</span></div>
+              <div><b>PREPARE</b><span>Role-based interview simulations</span></div>
+              <div><b>ASSESS</b><span>Run the invariant against your target</span></div>
+            </div>
+          </article>
+        </aside>
+      </div>
+
       <div class="start-hero panel">
         <div class="start-hero-copy">
           <div class="eyebrow">WHAT THIS PLATFORM DOES</div>
@@ -246,6 +307,75 @@
     <section id="view-runs" class="view"><div id="runs-list" class="runs-table"></div></section>
     <section id="view-cases" class="view"><div id="cases-list" class="case-list"></div></section>
     <section id="view-evidence" class="view"><div id="evidence-view" class="evidence-shell"></div></section>
+
+    <section id="view-career" class="view">
+      <div class="career-hero panel">
+        <div>
+          <div class="eyebrow">CAREER LAB</div>
+          <h2>Interview preparation across the cybersecurity profession.</h2>
+          <p>Choose a role and seniority. The session covers technical depth, architecture, proactive security, adversarial scenarios, metrics, hands-on execution, tradeoffs, and leadership.</p>
+        </div>
+        <div class="career-framework">
+          <div class="label">WORKFORCE REFERENCE</div>
+          <strong>NIST NICE-aligned structure</strong>
+          <span id="career-framework-note">Loading framework context…</span>
+        </div>
+      </div>
+      <div class="career-layout">
+        <article class="panel career-role-panel">
+          <div class="panel-head"><div><div class="label">ROLE TRACKS</div><div class="subtle-copy">Search and select a security discipline</div></div><span id="role-count" class="tag neutral">0 ROLES</span></div>
+          <input id="role-search" class="large-input" placeholder="Search SOC, AppSec, red team, SOAR, SecIntel, AI security…">
+          <div id="role-grid" class="role-grid"></div>
+        </article>
+        <article class="panel interview-panel">
+          <div class="panel-head"><div><div class="label">INTERVIEW SESSION</div><div class="subtle-copy">Multi-angle question set for the selected role</div></div></div>
+          <div class="interview-controls">
+            <label>ROLE<select id="career-role"></select></label>
+            <label>LEVEL<select id="career-level"><option>entry</option><option>mid</option><option selected>senior</option><option>principal</option><option>manager</option><option>executive</option></select></label>
+            <button id="generate-interview" class="button primary">Generate Session</button>
+          </div>
+          <div id="interview-session" class="interview-session empty-state">Choose a role and generate a session.</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="view-target" class="view">
+      <div class="targetlab-hero panel">
+        <div>
+          <div class="eyebrow">TARGET LAB</div>
+          <h2>Register a repo or application, discover its security surfaces, then run compatible hunts.</h2>
+          <p>Use a local path or GitHub URL. GitHub targets can be shallow-cloned into the AASL state directory for analysis. Target execution is explicit and requires a trusted <code>.aasl/target.json</code> adapter manifest.</p>
+        </div>
+        <div class="target-safety">
+          <div class="label">EXECUTION SAFETY</div>
+          <strong>Only trusted target adapters run.</strong>
+          <span>Commands execute without a shell, from the target root, only after you configure them.</span>
+        </div>
+      </div>
+
+      <div class="targetlab-layout">
+        <article class="panel">
+          <div class="panel-head"><div><div class="label">ADD TARGET</div><div class="subtle-copy">Local repository or GitHub URL</div></div></div>
+          <div class="target-form">
+            <label>NAME<input id="target-name" class="large-input" placeholder="browser-agent"></label>
+            <label>SOURCE<select id="target-source"><option value="local">Local path</option><option value="github">GitHub URL</option></select></label>
+            <label>LOCATION<input id="target-location" class="large-input" placeholder="/Users/Kedar/.../browser-agent"></label>
+            <button id="register-target" class="button primary wide">Register Target</button>
+          </div>
+          <div class="safe-note">AASL does not automatically execute arbitrary repository code. Capability discovery is heuristic; active target tests require an explicit adapter manifest.</div>
+        </article>
+
+        <article class="panel target-inventory">
+          <div class="panel-head"><div><div class="label">TARGET INVENTORY</div><div class="subtle-copy">Registered repositories and analysis status</div></div><span id="target-count" class="tag neutral">0 TARGETS</span></div>
+          <div id="target-list" class="target-list empty-state">No targets registered.</div>
+        </article>
+      </div>
+
+      <article class="panel target-detail-panel">
+        <div class="panel-head"><div><div class="label">TARGET DETAIL</div><div class="subtle-copy">Capabilities, compatible labs, adapter state, and target runs</div></div></div>
+        <div id="target-detail" class="empty-state">Select or register a target.</div>
+      </article>
+    </section>
 
     <section id="view-graph" class="view">
       <article class="panel graph-panel">
