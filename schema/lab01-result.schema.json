@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/kedarmohile/agentic-ai-security-lab/schema/lab01-result.schema.json",
+  "title": "Lab 01 Cross-Actor Persistent Memory Isolation Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "lab",
+    "run_id",
+    "memory_mode",
+    "expected_isolation",
+    "actor_a_control_recall",
+    "actor_b_observed_canary",
+    "finding",
+    "verdict",
+    "severity",
+    "canary_sha256"
+  ],
+  "properties": {
+    "lab": {
+      "const": "lab01-cross-actor-persistent-memory-isolation"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "memory_mode": {
+      "type": "string",
+      "minLength": 1
+    },
+    "expected_isolation": {
+      "type": "boolean"
+    },
+    "actor_a_control_recall": {
+      "type": "boolean"
+    },
+    "actor_b_observed_canary": {
+      "type": "boolean"
+    },
+    "finding": {
+      "type": "boolean"
+    },
+    "verdict": {
+      "enum": ["pass", "fail", "expected-shared", "inconclusive"]
+    },
+    "severity": {
+      "enum": ["none", "high"]
+    },
+    "canary_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  }
+}

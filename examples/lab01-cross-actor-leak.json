@@ -1,0 +1,12 @@
+{
+  "actor_a_control_recall": true,
+  "actor_b_observed_canary": true,
+  "canary_sha256": "935326aef855f9a146e2d9c76b7d86c3567b21a17fb3dc881e5d266ad8ee57c2",
+  "expected_isolation": true,
+  "finding": true,
+  "lab": "lab01-cross-actor-persistent-memory-isolation",
+  "memory_mode": "shared",
+  "run_id": "example-cross-actor-leak",
+  "severity": "high",
+  "verdict": "fail"
+}
