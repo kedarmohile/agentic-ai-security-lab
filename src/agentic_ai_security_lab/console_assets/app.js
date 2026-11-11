@@ -554,7 +554,8 @@ function loadSimulation() {
   $("#run-simulation-search").addEventListener("click", runSimulationSearch);
   $("#simulation-search").addEventListener("keydown", function(e){if(e.key === "Enter") runSimulationSearch();});
   $$(".reveal-hint").forEach(function(btn){btn.addEventListener("click", function(){revealHint(btn.dataset.task);});});
-  $$(".evaluate-simulation").forEach(function(btn){btn.addEventListener("click", function(){evaluateSimulationTaskUI(btn.dataset.task);});});
+  $(".evaluate-simulation").forEach(function(btn){btn.addEventListener("click", function(){evaluateSimulationTaskUI(btn.dataset.task);});});
+  $(".dictate-simulation").forEach(function(btn){btn.addEventListener("click", function(){const editor=$(\'.simulation-answer[data-task="\'+btn.dataset.task+\'"]\');if(editor)dictateInto(editor);});});
   $$(".vm-start").forEach(function(btn){btn.addEventListener("click", function(){vmAction("/api/vm/start", btn.dataset.blueprint);});});
   $$(".vm-reset").forEach(function(btn){btn.addEventListener("click", function(){vmAction("/api/vm/reset", btn.dataset.blueprint);});});
   $$(".vm-stop").forEach(function(btn){btn.addEventListener("click", function(){vmAction("/api/vm/stop", btn.dataset.blueprint);});});
