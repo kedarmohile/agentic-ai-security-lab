@@ -28,3 +28,7 @@ jobs:
         run: python -m pip install -e ".[dev]"
       - name: Test
         run: pytest -q
+      - name: Check console assets
+        run: agentic-ai-console --check
+      - name: Check console JavaScript
+        run: node --check src/agentic_ai_security_lab/console_assets/app.js

@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>AASL Security Console</title>
+  <link rel="icon" href="/shield.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="/shield.svg" class="brand-mark" alt="">
+      <div><div class="brand-kicker">AASL</div><div class="brand-name">Security Console</div></div>
+    </div>
+    <div class="env-chip"><span class="status-dot"></span> LOCAL / EVIDENCE MODE</div>
+    <nav id="nav">
+      <div class="nav-group">COMMAND</div>
+      <button class="nav-item active" data-view="command"><span>⌁</span>Command Center</button>
+      <div class="nav-group">OPERATIONS</div>
+      <button class="nav-item" data-view="hunts"><span>⌖</span>Hunts</button>
+      <button class="nav-item" data-view="findings"><span>⚠</span>Findings <b id="nav-findings">0</b></button>
+      <button class="nav-item" data-view="runs"><span>↻</span>Runs</button>
+      <button class="nav-item" data-view="cases"><span>▣</span>Cases</button>
+      <div class="nav-group">RESEARCH</div>
+      <button class="nav-item" data-view="labs"><span>⬡</span>Labs</button>
+      <button class="nav-item" data-view="graph"><span>⌘</span>Attack Graph</button>
+      <button class="nav-item" data-view="evidence"><span>≡</span>Evidence</button>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="mono tiny">ENGINE v0.6</div>
+      <div class="tiny muted">No seeded telemetry. Findings come only from executed deterministic labs.</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div><div class="eyebrow">AGENTIC AI SECURITY OPERATIONS</div><h1 id="page-title">Command Center</h1></div>
+      <div class="top-actions">
+        <button id="command-button" class="command-trigger"><span>⌘</span> Search / Run command <kbd>⌘K</kbd></button>
+        <button id="run-pack" class="button subtle">Run Hunt Pack</button>
+        <button id="open-runner" class="button primary">+ Run Lab</button>
+      </div>
+    </header>
+
+    <section id="view-command" class="view active">
+      <div class="posture-grid">
+        <article class="panel posture-panel">
+          <div class="panel-head">
+            <div><div class="label">SECURITY POSTURE</div><div class="subtle-copy">Latest assessed result per lab</div></div>
+            <span id="posture-state" class="tag neutral">UNASSESSED</span>
+          </div>
+          <div class="posture-body">
+            <div class="score-ring">
+              <svg viewBox="0 0 120 120"><circle class="ring-track" cx="60" cy="60" r="50"></circle><circle class="ring-value" id="ring-value" cx="60" cy="60" r="50"></circle></svg>
+              <div class="ring-label"><strong id="posture-score">--</strong><span>/100</span></div>
+            </div>
+            <div class="posture-copy">
+              <h2 id="posture-title">Run a lab to establish posture</h2>
+              <p id="posture-detail">Scores are calculated only from executed lab evidence.</p>
+              <div class="assessment-bar"><span id="assessment-fill"></span></div>
+              <div class="mono tiny"><span id="assessed-count">0</span>/5 LABS ASSESSED</div>
+            </div>
+          </div>
+        </article>
+        <div class="metric-stack">
+          <article class="metric-card">
+            <div class="metric-label">CONFIRMED FINDINGS</div>
+            <div class="metric-value" id="metric-findings">0</div>
+            <div class="metric-foot"><span class="severity high" id="metric-high">0 HIGH</span><span class="severity medium" id="metric-medium">0 MED</span></div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-label">EVIDENCE CONFIDENCE</div>
+            <div class="metric-value"><span id="metric-evidence">--</span><small>/100</small></div>
+            <div class="metric-foot mono">DETERMINISTIC CONTROLS</div>
+          </article>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <article class="panel">
+          <div class="panel-head"><div><div class="label">PRIORITY HUNTS</div><div class="subtle-copy">Guided security investigations</div></div><button class="text-button" data-jump="hunts">VIEW ALL →</button></div>
+          <div id="priority-hunts" class="hunt-list"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-head"><div><div class="label">LAB RUNNER</div><div class="subtle-copy">Execute a local deterministic scenario</div></div><span class="live-badge">LIVE</span></div>
+          <div class="runner-form">
+            <label>LAB<select id="quick-lab"></select></label>
+            <label>SCENARIO<select id="quick-mode"></select></label>
+            <button id="quick-run" class="button primary wide">Execute Scenario</button>
+          </div>
+          <div class="runner-tip"><span>i</span><p>Findings are created only when the selected lab returns evidence supporting a security failure.</p></div>
+        </article>
+      </div>
+
+      <div class="dashboard-grid lower">
+        <article class="panel">
+          <div class="panel-head"><div><div class="label">ATTACK SURFACE</div><div class="subtle-copy">Agentic trust boundaries</div></div><button class="text-button" data-jump="graph">EXPLORE GRAPH →</button></div>
+          <div class="mini-graph">
+            <div class="graph-node n-principal">Principal<span>identity</span></div><div class="graph-edge e1"></div>
+            <div class="graph-node n-agent">Agent<span>delegation</span></div><div class="graph-edge e2"></div>
+            <div class="graph-node n-memory">Memory<span>persistence</span></div><div class="graph-edge e3"></div>
+            <div class="graph-node n-tool">Tool<span>authorization</span></div><div class="graph-edge e4"></div>
+            <div class="graph-node n-credential">Credential<span>scope</span></div><div class="graph-edge e5"></div>
+            <div class="graph-node n-resource">Resource<span>impact</span></div>
+          </div>
+        </article>
+        <article class="panel">
+          <div class="panel-head"><div><div class="label">RECENT RUNS</div><div class="subtle-copy">Newest deterministic evidence</div></div><button class="text-button" data-jump="runs">HISTORY →</button></div>
+          <div id="recent-runs" class="run-list empty-state">No runs yet.</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="view-hunts" class="view"><div id="hunts-grid" class="hunt-grid"></div></section>
+    <section id="view-labs" class="view"><div id="labs-grid" class="labs-grid"></div></section>
+    <section id="view-findings" class="view"><div id="findings-list" class="finding-list"></div></section>
+    <section id="view-runs" class="view"><div id="runs-list" class="runs-table"></div></section>
+    <section id="view-cases" class="view"><div id="cases-list" class="case-list"></div></section>
+    <section id="view-evidence" class="view"><div id="evidence-view" class="evidence-shell"></div></section>
+
+    <section id="view-graph" class="view">
+      <article class="panel graph-panel">
+        <div class="panel-head"><div><div class="label">ATTACK GRAPH</div><div class="subtle-copy">Trust boundaries across Labs 01–05</div></div><span class="tag neutral">LOCAL MODEL</span></div>
+        <div class="attack-graph">
+          <div class="ag-node principal"><b>Principal</b><span>human / workload</span></div>
+          <div class="ag-node agent-a"><b>Agent A</b><span>memory · delegation</span></div>
+          <div class="ag-node agent-b"><b>Agent B</b><span>deputy · child</span></div>
+          <div class="ag-node memory"><b>Persistent Memory</b><span>Lab 01 / 03</span></div>
+          <div class="ag-node retrieval"><b>Retrieval Context</b><span>Lab 03</span></div>
+          <div class="ag-node tool"><b>Privileged Tool</b><span>Lab 02</span></div>
+          <div class="ag-node credential"><b>Credential</b><span>Lab 05</span></div>
+          <div class="ag-node resource"><b>Protected Resource</b><span>impact boundary</span></div>
+          <svg class="graph-lines" viewBox="0 0 1000 520" preserveAspectRatio="none"><path d="M135 90 L330 90 L330 220"></path><path d="M405 220 L600 220"></path><path d="M405 220 L420 390"></path><path d="M680 220 L830 120"></path><path d="M680 220 L830 310"></path><path d="M500 390 L830 310"></path><path d="M245 220 L120 390"></path><path d="M120 390 L420 390"></path></svg>
+        </div>
+      </article>
+    </section>
+  </main>
+</div>
+
+<div id="drawer-backdrop" class="drawer-backdrop"></div>
+<aside id="run-drawer" class="drawer">
+  <div class="drawer-head"><div><div class="eyebrow">EXECUTE</div><h2>Run Security Lab</h2></div><button class="icon-button" id="close-runner">×</button></div>
+  <div class="drawer-body">
+    <label>LAB<select id="drawer-lab"></select></label>
+    <div id="drawer-lab-question" class="question-box"></div>
+    <label>SCENARIO<select id="drawer-mode"></select></label>
+    <div class="score-preview"><div><span>CONTROL</span><b>live</b></div><div><span>EXPOSURE</span><b>live</b></div><div><span>EVIDENCE</span><b>live</b></div></div>
+    <button id="drawer-run" class="button primary wide">Execute & Capture Evidence</button>
+    <div class="safe-note">Vulnerable modes simulate security failures without external side effects.</div>
+  </div>
+</aside>
+
+<aside id="detail-drawer" class="drawer detail-drawer">
+  <div class="drawer-head"><div><div class="eyebrow" id="detail-kicker">EVIDENCE</div><h2 id="detail-title">Run Detail</h2></div><button class="icon-button" id="close-detail">×</button></div>
+  <div id="detail-body" class="drawer-body"></div>
+</aside>
+
+<div id="command-palette" class="palette-wrap">
+  <div class="palette">
+    <div class="palette-input-row"><span>⌘</span><input id="palette-input" autocomplete="off" placeholder="Search labs, hunts, findings, or run a command…"><kbd>ESC</kbd></div>
+    <div id="palette-results" class="palette-results"></div>
+  </div>
+</div>
+<div id="toast-stack" class="toast-stack"></div>
+<script src="/app.js"></script>
+</body>
+</html>
