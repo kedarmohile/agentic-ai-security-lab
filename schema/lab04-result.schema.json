@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/kedarmohile/agentic-ai-security-lab/schema/lab04-result.schema.json",
+  "title": "Lab 04 Confused-Deputy Delegation Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "lab",
+    "run_id",
+    "lab_mode",
+    "broker_mode",
+    "principal_id",
+    "delegate_id",
+    "deputy_id",
+    "requested_action",
+    "requested_resource",
+    "control_delegation_succeeded",
+    "deputy_has_local_capability",
+    "delegation_token_supplied",
+    "delegation_valid_for_request",
+    "delegated_action_attempted",
+    "delegated_action_executed",
+    "authorization_source",
+    "decision_reason",
+    "finding",
+    "verdict",
+    "severity",
+    "request_sha256",
+    "delegation_token_sha256"
+  ],
+  "properties": {
+    "lab": {
+      "const": "lab04-confused-deputy-delegation"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "lab_mode": {
+      "enum": [
+        "secure",
+        "vulnerable",
+        "exact-delegated",
+        "resource-substitution",
+        "delegate-substitution",
+        "request-replay"
+      ]
+    },
+    "broker_mode": {
+      "enum": ["secure", "trust-deputy-local-privilege"]
+    },
+    "principal_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "delegate_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "deputy_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "requested_action": {
+      "type": "string",
+      "minLength": 1
+    },
+    "requested_resource": {
+      "type": "string",
+      "minLength": 1
+    },
+    "control_delegation_succeeded": {
+      "type": "boolean"
+    },
+    "deputy_has_local_capability": {
+      "type": "boolean"
+    },
+    "delegation_token_supplied": {
+      "type": "boolean"
+    },
+    "delegation_valid_for_request": {
+      "type": "boolean"
+    },
+    "delegated_action_attempted": {
+      "type": "boolean"
+    },
+    "delegated_action_executed": {
+      "type": "boolean"
+    },
+    "authorization_source": {
+      "enum": ["none", "delegation-grant", "deputy-local-privilege"]
+    },
+    "decision_reason": {
+      "enum": [
+        "valid-bound-delegation",
+        "deputy-lacks-local-capability",
+        "delegation-does-not-authorize-request",
+        "deputy-capability-treated-as-principal-authority"
+      ]
+    },
+    "finding": {
+      "type": "boolean"
+    },
+    "verdict": {
+      "enum": ["pass", "fail", "expected-authorized", "inconclusive"]
+    },
+    "severity": {
+      "enum": ["none", "high"]
+    },
+    "request_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "delegation_token_sha256": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  }
+}
