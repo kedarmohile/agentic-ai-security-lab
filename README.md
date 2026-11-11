@@ -5,7 +5,7 @@ An open-source **agentic AI security platform** for hands-on learning, security-
 AASL combines three product experiences on top of the same security engine:
 
 - **Academy** — missions, learning paths, XP/ranks, labs, hunts, and a four-lens security framework stack: OWASP Web, OWASP LLM, OWASP Agentic, and MITRE ATLAS.
-- **Career Lab** — Interview Studio plus role-specific hands-on Simulation Range: answer evaluation, exemplar responses, constructive feedback, log hunts, code/policy review, bypass analysis, sensitive-data discovery, incident exercises, hints, and optional portable VM labs.
+- **Career Lab** — Interview Studio plus role-specific hands-on Simulation Range: optional GenAI evaluation, weighted rubrics, retry-to-mastery, best sample answers, interviewer personas/voice, log hunts, code/policy review, bypass analysis, sensitive-data discovery, incident exercises, hints, and optional portable VM labs.
 - **Target Lab** — register a local or GitHub repository, discover likely security surfaces, and run explicitly configured AASL target adapters.
 
 Underneath those experiences, the repository keeps the original principle: turn AI-security claims into **small, inspectable tests** with explicit threat models, deterministic controls, structured results, and regression coverage.
@@ -284,6 +284,7 @@ Product documentation:
 - [Platform / Console Architecture](docs/security-console.md)
 - [Academy](docs/academy.md)
 - [Career Lab](docs/career-lab.md)
+- [UI Design System](docs/ui-design-system.md)
 - [Security Framework Stack](docs/security-frameworks.md)
 - [Portable VM Labs](docs/vm-labs.md)
 - [Target Lab](docs/target-lab.md)

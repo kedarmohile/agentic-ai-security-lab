@@ -1395,10 +1395,39 @@ class CareerAttemptStore:
 
     def append(self, kind: str, payload: dict[str, Any]) -> dict[str, Any]:
         self.state_dir.mkdir(parents=True, exist_ok=True)
+        prior = self.attempts()
+
+        def same_attempt_group(row: dict[str, Any]) -> bool:
+            if row.get("kind") != kind:
+                return False
+            if kind == "interview":
+                return (
+                    row.get("role_id") == payload.get("role_id")
+                    and row.get("level") == payload.get("level")
+                    and row.get("dimension") == payload.get("dimension")
+                    and row.get("question") == payload.get("question")
+                )
+            return (
+                row.get("scenario_id") == payload.get("scenario_id")
+                and row.get("task_id") == payload.get("task_id")
+            )
+
+        grouped = [row for row in prior if same_attempt_group(row)]
+        previous_best = max(
+            (int(row.get("score", 0)) for row in grouped),
+            default=0,
+        )
+        current_score = int(payload.get("score", 0))
+        attempt_number = len(grouped) + 1
+
         record = {
             "attempt_id": "CA-" + datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S%f"),
             "created_at": datetime.now(timezone.utc).isoformat(),
             "kind": kind,
+            "attempt_number": attempt_number,
+            "previous_best_score": previous_best,
+            "best_score": max(previous_best, current_score),
+            "score_delta_from_previous_best": current_score - previous_best,
             **payload,
         }
         with self.path.open("a", encoding="utf-8") as handle:
