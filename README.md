@@ -250,9 +250,15 @@ Install the repo in editable mode, then run:
     python -m pip install -e ".[dev]"
     agentic-ai-console
 
-Open `http://127.0.0.1:8765`.
+Open `http://127.0.0.1:8877`.
 
-The console includes:
+The website now has three distinct product areas:
+
+- **Academy** — gamified learning paths, missions, XP/ranks, hands-on labs/hunts, and complete visibility across all 16 MITRE ATLAS tactics (current mission links vs roadmap gaps).
+- **Career Lab** — interview preparation across SOC, detection engineering, AppSec, product security, red/purple team, threat hunting, threat intelligence, DFIR, SOAR, cloud, IAM, DevSecOps, GRC, leadership, AI security, research, cryptography, and more.
+- **Target Lab** — register a local repository or GitHub URL, discover likely security surfaces, scaffold trusted adapters, and run compatible AASL security invariants against your own application.
+
+The operations console still includes:
 
 - Command Center with live posture and assessment coverage
 - guided Hunts with objectives, steps, difficulty, controls, and points
@@ -265,7 +271,7 @@ The console includes:
 - command palette (`Cmd/Ctrl + K`)
 - no external frontend CDN or cloud dependency
 
-See [Security Console Architecture](docs/security-console.md), [Scoring Model](docs/console-scoring.md), and [Test Your Own Application](docs/test-your-app.md).
+See [Security Console Architecture](docs/security-console.md), [Scoring Model](docs/console-scoring.md), [Test Your Own Application](docs/test-your-app.md), [Target Adapter Manifest](docs/target-manifest.md), and [Product Reference Models](docs/product-reference-models.md).
 
 The console starts with a **Start Here** page that explains the workflow. The built-in console runs the deterministic reference harnesses; testing your own code requires connecting your application boundary through the documented adapter/wrapper pattern. Lab 01 is directly pluggable today.
 ## Repository principles

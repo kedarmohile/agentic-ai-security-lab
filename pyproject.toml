@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agentic-ai-security-lab"
-version = "0.6.1"
+version = "0.7.0"
 description = "Reproducible security labs for GenAI and agentic AI systems."
 readme = "README.md"
 requires-python = ">=3.11"
