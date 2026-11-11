@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/kedarmohile/agentic-ai-security-lab/schema/lab03-result.schema.json",
+  "title": "Lab 03 Retrieval / Persistent-Memory Poisoning Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "lab",
+    "run_id",
+    "lab_mode",
+    "pipeline_mode",
+    "baseline_control_correct",
+    "poison_ingested",
+    "poison_document_retrieved",
+    "trusted_fact_retrieved",
+    "untrusted_directive_detected",
+    "downstream_output_poisoned",
+    "retrieved_document_ids",
+    "finding",
+    "verdict",
+    "severity",
+    "query_sha256",
+    "expected_answer_sha256",
+    "poison_marker_sha256",
+    "observed_answer_sha256"
+  ],
+  "properties": {
+    "lab": {
+      "const": "lab03-retrieval-memory-poisoning"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "lab_mode": {
+      "enum": ["baseline", "secure", "vulnerable", "poison-not-retrieved"]
+    },
+    "pipeline_mode": {
+      "enum": ["secure", "vulnerable"]
+    },
+    "baseline_control_correct": {
+      "type": "boolean"
+    },
+    "poison_ingested": {
+      "type": "boolean"
+    },
+    "poison_document_retrieved": {
+      "type": "boolean"
+    },
+    "trusted_fact_retrieved": {
+      "type": "boolean"
+    },
+    "untrusted_directive_detected": {
+      "type": "boolean"
+    },
+    "downstream_output_poisoned": {
+      "type": "boolean"
+    },
+    "retrieved_document_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "finding": {
+      "type": "boolean"
+    },
+    "verdict": {
+      "enum": ["pass", "fail", "inconclusive"]
+    },
+    "severity": {
+      "enum": ["none", "high"]
+    },
+    "query_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "expected_answer_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "poison_marker_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "observed_answer_sha256": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  }
+}
