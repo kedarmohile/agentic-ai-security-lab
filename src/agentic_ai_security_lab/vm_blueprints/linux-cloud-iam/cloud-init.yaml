@@ -1,0 +1,58 @@
+#cloud-config
+write_files:
+  - path: /opt/aasl/artifacts/policy.json
+    permissions: '0644'
+    content: |
+      {
+        "Statement": [
+          {"Effect": "Allow", "Action": ["storage:*"], "Resource": "*"},
+          {"Effect": "Allow", "Action": ["kms:Decrypt"], "Resource": "*"}
+        ]
+      }
+  - path: /opt/aasl/artifacts/workload.txt
+    permissions: '0644'
+    content: |
+      reports-service only needs read access to aasl-reports/prod/*
+      and decrypt with key aasl-reports-key. It must not write or delete.
+  - path: /opt/aasl/artifacts/agent-architecture.txt
+    permissions: '0644'
+    content: |
+      User -> Web App -> Orchestrator
+      Orchestrator context: user prompt + untrusted retrieved docs + reusable user bearer token
+      Orchestrator -> Search Tool
+      Orchestrator -> Publish Tool using same token
+      Sub-agent receives full context including bearer token
+  - path: /opt/aasl/artifacts/agent-trace.ndjson
+    permissions: '0644'
+    content: |
+      {"event":"retrieve","source":"external-note","trust":"untrusted","request_id":"r-77"}
+      {"event":"model_plan","text":"publish summary","request_id":"r-77"}
+      {"event":"tool_request","tool":"publish_report","privileged":true,"request_id":"r-77"}
+      {"event":"approval","source":"retrieved_context","valid":false,"request_id":"r-77"}
+      {"event":"tool_execute","tool":"publish_report","result":"success","request_id":"r-77"}
+  - path: /opt/aasl/artifacts/crypto.conf
+    permissions: '0644'
+    content: |
+      min_tls_version = TLS1.0
+      certificate_key_bits = 1024
+      key_rotation_days = 365
+      private_key_storage = application_config_file
+      certificate_validation = enabled
+  - path: /opt/aasl/README.txt
+    permissions: '0644'
+    content: |
+      AASL Linux Cloud / IAM Workstation
+
+      All policies, identities, credentials, and actions are synthetic.
+
+      Start:
+        cd /opt/aasl/artifacts
+        python3 -m json.tool policy.json
+        cat workload.txt
+        cat agent-architecture.txt
+        cat agent-trace.ndjson
+        cat crypto.conf
+runcmd:
+  - mkdir -p /home/ubuntu/aasl
+  - cp -R /opt/aasl/* /home/ubuntu/aasl/
+  - chown -R ubuntu:ubuntu /home/ubuntu/aasl

@@ -1,0 +1,59 @@
+#cloud-config
+write_files:
+  - path: /opt/aasl/README.txt
+    permissions: '0644'
+    content: |
+      AASL Linux SOC / DFIR Workstation
+
+      All artifacts are synthetic and intentionally safe.
+      Start in /opt/aasl/artifacts.
+
+      Suggested commands:
+        cd /opt/aasl/artifacts
+        grep -R -nE 'token|admin|registry|Bearer' .
+        python3 -m json.tool sandbox.json
+        less auth.log
+        less endpoint.log
+  - path: /opt/aasl/artifacts/auth.log
+    permissions: '0644'
+    content: |
+      evt-1001 09:00 user=maya action=login result=success ip=10.0.4.18 device=corp-laptop-17 mfa=true
+      evt-1002 09:02 user=maya action=read_dashboard result=success ip=10.0.4.18 device=corp-laptop-17
+      evt-1040 09:41 user=maya action=login result=success ip=198.51.100.77 device=unknown mfa=false token_id=TKN-77
+      evt-1041 09:42 user=maya action=token_refresh result=success ip=198.51.100.77 device=unknown token_id=TKN-77
+      evt-1042 09:44 user=maya action=add_admin_role result=success ip=198.51.100.77 device=unknown token_id=TKN-77 target=svc-reports
+      evt-1043 09:46 user=maya action=export result=denied ip=198.51.100.77 device=unknown token_id=TKN-77 dataset=finance-q4
+      evt-1050 09:50 user=maya action=login result=success ip=10.0.4.18 device=corp-laptop-17 mfa=true
+  - path: /opt/aasl/artifacts/endpoint.log
+    permissions: '0644'
+    content: |
+      11:20:02 proc start parent=mailclient child=invoice_viewer.exe user=lee
+      11:20:06 file create path=C:/Users/lee/AppData/Local/Temp/aasl-demo.bin
+      11:20:09 proc start parent=invoice_viewer.exe child=script-host.exe args='demo-startup-registration'
+      11:20:11 registry write key=HKCU/Software/AASL/DemoRun value=script-host.exe
+      11:20:15 dns query process=script-host.exe name=telemetry.example.invalid
+      11:20:20 net connect process=script-host.exe dst=203.0.113.55:443 result=success
+      11:21:02 auth event user=lee target=fileserver result=success auth=existing-session
+  - path: /opt/aasl/artifacts/authorization.ndjson
+    permissions: '0644'
+    content: |
+      {"ts":"10:01:00","actor":"u-17","event":"context_loaded","source_trust":"untrusted","request_id":"r-9"}
+      {"ts":"10:01:03","actor":"u-17","event":"tool_requested","tool":"publish_report","request_id":"r-9","privileged":true}
+      {"ts":"10:01:03","actor":"u-17","event":"approval_checked","request_id":"r-9","approval_source":"none","approval_valid":false}
+      {"ts":"10:01:04","actor":"u-17","event":"tool_executed","tool":"publish_report","request_id":"r-9","result":"success"}
+  - path: /opt/aasl/artifacts/sandbox.json
+    permissions: '0644'
+    content: |
+      {
+        "sample": "invoice_viewer-demo.exe",
+        "processes": ["invoice_viewer-demo.exe", "script-host-demo.exe"],
+        "writes": ["C:/Users/demo/AppData/Local/Temp/aasl-marker.txt"],
+        "registry": ["HKCU/Software/AASL/DemoRun"],
+        "dns": ["beacon.example.invalid"],
+        "network": ["203.0.113.88:443"],
+        "notes": "Synthetic trace only; no exploit or destructive action occurred."
+      }
+runcmd:
+  - mkdir -p /home/ubuntu/aasl
+  - cp -R /opt/aasl/* /home/ubuntu/aasl/
+  - chown -R ubuntu:ubuntu /home/ubuntu/aasl

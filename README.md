@@ -4,11 +4,13 @@ An open-source **agentic AI security platform** for hands-on learning, security-
 
 AASL combines three product experiences on top of the same security engine:
 
-- **Academy** — missions, learning paths, XP/ranks, labs, hunts, and MITRE ATLAS coverage visibility.
-- **Career Lab** — interview preparation across cybersecurity roles and seniority levels.
+- **Academy** — missions, learning paths, XP/ranks, labs, hunts, and a four-lens security framework stack: OWASP Web, OWASP LLM, OWASP Agentic, and MITRE ATLAS.
+- **Career Lab** — Interview Studio plus role-specific hands-on Simulation Range: answer evaluation, exemplar responses, constructive feedback, log hunts, code/policy review, bypass analysis, sensitive-data discovery, incident exercises, hints, and optional portable VM labs.
 - **Target Lab** — register a local or GitHub repository, discover likely security surfaces, and run explicitly configured AASL target adapters.
 
 Underneath those experiences, the repository keeps the original principle: turn AI-security claims into **small, inspectable tests** with explicit threat models, deterministic controls, structured results, and regression coverage.
+
+AASL deliberately keeps general cybersecurity and AppSec coverage, while specializing deeply in **GenAI and Agentic AI security** through OWASP LLM/Agentic risk models and MITRE ATLAS adversary techniques.
 
 ## Labs
 
@@ -260,8 +262,8 @@ Open `http://127.0.0.1:8877`.
 
 The website now has three distinct product areas:
 
-- **Academy** — gamified learning paths, missions, XP/ranks, hands-on labs/hunts, and complete visibility across all 16 MITRE ATLAS tactics (current mission links vs roadmap gaps).
-- **Career Lab** — interview preparation across SOC, detection engineering, AppSec, product security, red/purple team, threat hunting, threat intelligence, DFIR, SOAR, cloud, IAM, DevSecOps, GRC, leadership, AI security, research, cryptography, and more.
+- **Academy** — gamified learning paths, missions, XP/ranks, hands-on labs/hunts, complete visibility across all 16 MITRE ATLAS tactics, plus OWASP Web 2025, LLM 2026, and Agentic 2026 framework catalogs.
+- **Career Lab** — Interview Studio with evaluated answers/model responses and a hands-on Simulation Range across SOC, detection engineering, AppSec, product security, red/purple team, threat hunting, threat intelligence, DFIR, SOAR, cloud, IAM, DevSecOps, GRC, leadership, AI security, research, cryptography, and more.
 - **Target Lab** — register a local repository or GitHub URL, discover likely security surfaces, scaffold trusted adapters, and run compatible AASL security invariants against your own application.
 
 The operations console still includes:
@@ -282,6 +284,8 @@ Product documentation:
 - [Platform / Console Architecture](docs/security-console.md)
 - [Academy](docs/academy.md)
 - [Career Lab](docs/career-lab.md)
+- [Security Framework Stack](docs/security-frameworks.md)
+- [Portable VM Labs](docs/vm-labs.md)
 - [Target Lab](docs/target-lab.md)
 - [Scoring Model](docs/console-scoring.md)
 - [Test Your Own Application](docs/test-your-app.md)

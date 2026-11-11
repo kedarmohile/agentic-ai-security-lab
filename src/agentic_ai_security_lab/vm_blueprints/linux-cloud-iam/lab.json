@@ -1,0 +1,18 @@
+{
+  "blueprint_id": "linux-cloud-iam",
+  "title": "Linux Cloud / IAM Workstation",
+  "image": "24.04",
+  "cpus": 2,
+  "memory": "2G",
+  "disk": "8G",
+  "cloud_init": "cloud-init.yaml",
+  "scenario_ids": [
+    "sim-cloud-iam-review",
+    "sim-security-architecture",
+    "sim-soar-playbook",
+    "sim-grc-exception",
+    "sim-crypto-config",
+    "sim-ai-agent-boundary"
+  ],
+  "description": "Synthetic IAM, crypto, agent-architecture, SOAR, and risk artifacts for design and control-review exercises."
+}

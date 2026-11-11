@@ -68,6 +68,17 @@ This ensures learners see both the intended control and the failure condition.
 
 XP is a learning-progression metric. It is not a risk score.
 
+## Security framework stack
+
+Academy uses four complementary framework lenses:
+
+- OWASP Top 10:2025 for general web/application security;
+- OWASP Top 10 for LLM Applications 2026 for GenAI application risks;
+- OWASP Top 10 for Agentic Applications 2026 for autonomous-agent risks;
+- MITRE ATLAS for AI adversary tactics and techniques.
+
+See [Security Framework Stack](security-frameworks.md).
+
 ## MITRE ATLAS coverage
 
 Academy displays all 16 MITRE ATLAS tactics:

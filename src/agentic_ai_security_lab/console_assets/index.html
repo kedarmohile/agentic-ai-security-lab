@@ -84,9 +84,20 @@
                 <div class="label">MITRE ATLAS COVERAGE MAP</div>
                 <div class="subtle-copy">All 16 ATLAS tactics are visible; current mission links are separated from roadmap gaps.</div>
               </div>
-              <span class="tag neutral">AGENTIC AI</span>
+              <span class="tag neutral">ADVERSARY VIEW</span>
             </div>
             <div id="atlas-grid" class="atlas-grid"></div>
+          </article>
+
+          <article class="panel framework-panel">
+            <div class="panel-head">
+              <div>
+                <div class="label">SECURITY FRAMEWORK STACK</div>
+                <div class="subtle-copy">AASL uses OWASP Web + LLM + Agentic risk lenses alongside MITRE ATLAS attacker-technique mapping.</div>
+              </div>
+              <span class="tag neutral">4 LENSES</span>
+            </div>
+            <div id="framework-catalogs" class="framework-catalogs"></div>
           </article>
         </div>
 
@@ -312,8 +323,8 @@
       <div class="career-hero panel">
         <div>
           <div class="eyebrow">CAREER LAB</div>
-          <h2>Interview preparation across the cybersecurity profession.</h2>
-          <p>Choose a role and seniority. The session covers technical depth, architecture, proactive security, adversarial scenarios, metrics, hands-on execution, tradeoffs, and leadership.</p>
+          <h2>Interview preparation plus hands-on security simulations.</h2>
+          <p>Choose a role and seniority for Interview Studio, or switch to Simulation Range to hunt logs, analyze code and policies, find synthetic sensitive data, investigate incidents, reason through bypasses, and practice role-specific security work. AASL keeps broad cybersecurity coverage while specializing deeply in GenAI and Agentic AI through OWASP and MITRE ATLAS mappings.</p>
         </div>
         <div class="career-framework">
           <div class="label">WORKFORCE REFERENCE</div>
@@ -321,21 +332,49 @@
           <span id="career-framework-note">Loading framework context…</span>
         </div>
       </div>
+      <div class="career-mode-tabs">
+        <button class="career-mode-tab active" data-career-mode="interview">Interview Studio</button>
+        <button class="career-mode-tab" data-career-mode="simulation">Simulation Range</button>
+      </div>
       <div class="career-layout">
         <article class="panel career-role-panel">
           <div class="panel-head"><div><div class="label">ROLE TRACKS</div><div class="subtle-copy">Search and select a security discipline</div></div><span id="role-count" class="tag neutral">0 ROLES</span></div>
           <input id="role-search" class="large-input" placeholder="Search SOC, AppSec, red team, SOAR, SecIntel, AI security…">
           <div id="role-grid" class="role-grid"></div>
         </article>
-        <article class="panel interview-panel">
-          <div class="panel-head"><div><div class="label">INTERVIEW SESSION</div><div class="subtle-copy">Multi-angle question set for the selected role</div></div></div>
-          <div class="interview-controls">
-            <label>ROLE<select id="career-role"></select></label>
-            <label>LEVEL<select id="career-level"><option>entry</option><option>mid</option><option selected>senior</option><option>principal</option><option>manager</option><option>executive</option></select></label>
-            <button id="generate-interview" class="button primary">Generate Session</button>
-          </div>
-          <div id="interview-session" class="interview-session empty-state">Choose a role and generate a session.</div>
-        </article>
+        <div class="career-workspace">
+          <article id="career-interview-panel" class="panel interview-panel career-mode-panel active">
+            <div class="panel-head">
+              <div>
+                <div class="label">INTERVIEW STUDIO</div>
+                <div class="subtle-copy">Answer each question, submit it, then compare against a rubric and exemplar answer.</div>
+              </div>
+              <span class="tag neutral">ANSWER → EVALUATE → IMPROVE</span>
+            </div>
+            <div class="interview-controls">
+              <label>ROLE<select id="career-role"></select></label>
+              <label>LEVEL<select id="career-level"><option>entry</option><option>mid</option><option selected>senior</option><option>principal</option><option>manager</option><option>executive</option></select></label>
+              <button id="generate-interview" class="button primary">Generate Session</button>
+            </div>
+            <div id="interview-session" class="interview-session empty-state">Choose a role and generate a session.</div>
+          </article>
+
+          <article id="career-simulation-panel" class="panel simulation-panel career-mode-panel">
+            <div class="panel-head">
+              <div>
+                <div class="label">SIMULATION RANGE</div>
+                <div class="subtle-copy">Role-specific hands-on scenarios with artifacts, hints, a search workbench, validation, and constructive feedback.</div>
+              </div>
+              <span class="tag neutral">SYNTHETIC / SAFE</span>
+            </div>
+            <div class="simulation-controls">
+              <label>ROLE<select id="simulation-role"></select></label>
+              <label>SCENARIO<select id="simulation-scenario"></select></label>
+              <button id="load-simulation" class="button primary">Load Scenario</button>
+            </div>
+            <div id="simulation-workspace" class="simulation-workspace empty-state">Choose a role-specific scenario.</div>
+          </article>
+        </div>
       </div>
     </section>
 

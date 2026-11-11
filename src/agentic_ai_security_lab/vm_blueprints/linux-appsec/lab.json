@@ -1,0 +1,15 @@
+{
+  "blueprint_id": "linux-appsec",
+  "title": "Linux AppSec / Data Discovery Workstation",
+  "image": "24.04",
+  "cpus": 2,
+  "memory": "2G",
+  "disk": "8G",
+  "cloud_init": "cloud-init.yaml",
+  "scenario_ids": [
+    "sim-appsec-idor-review",
+    "sim-auth-bypass-toy",
+    "sim-sensitive-data-discovery"
+  ],
+  "description": "Synthetic source tree for authorization review, secrets/data discovery, and safe local bypass analysis."
+}

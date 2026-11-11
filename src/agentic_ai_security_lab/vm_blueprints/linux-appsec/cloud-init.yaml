@@ -1,0 +1,52 @@
+#cloud-config
+write_files:
+  - path: /opt/aasl/repo/api/handler.py
+    permissions: '0644'
+    content: |
+      def get_invoice(request, invoice_id):
+          user = authenticate(request)
+          invoice = db.invoices.get(invoice_id)
+          if not invoice:
+              return 404
+          return json_response(invoice)
+  - path: /opt/aasl/repo/api/gateway.py
+    permissions: '0644'
+    content: |
+      def authorize(request):
+          session = verify_session(request.cookies.get("session"))
+          requested_role = request.headers.get("X-Demo-Role", "user")
+          if session.valid and requested_role == "admin":
+              return True
+          return False
+  - path: /opt/aasl/repo/config/dev.env
+    permissions: '0644'
+    content: |
+      API_TOKEN=AASL_DEMO_TOKEN_8F3A2
+  - path: /opt/aasl/repo/docs/example.env
+    permissions: '0644'
+    content: |
+      API_TOKEN=YOUR_TOKEN_HERE
+  - path: /opt/aasl/repo/fixtures/patient.json
+    permissions: '0644'
+    content: |
+      {"name":"Test Patient","mrn":"AASL-00017","email":"test.patient@example.invalid"}
+  - path: /opt/aasl/repo/logs/debug.log
+    permissions: '0644'
+    content: |
+      12:01:17 debug request-id=r-17 Authorization: Bearer AASL_DEMO_BEARER_71C9
+  - path: /opt/aasl/README.txt
+    permissions: '0644'
+    content: |
+      AASL Linux AppSec / Data Discovery Workstation
+
+      Everything here is synthetic.
+
+      Start:
+        cd /opt/aasl/repo
+        grep -R -nE 'API_TOKEN|Bearer|mrn|owner_user_id|X-Demo-Role' .
+        sed -n '1,120p' api/handler.py
+        sed -n '1,120p' api/gateway.py
+runcmd:
+  - mkdir -p /home/ubuntu/aasl
+  - cp -R /opt/aasl/* /home/ubuntu/aasl/
+  - chown -R ubuntu:ubuntu /home/ubuntu/aasl

@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agentic-ai-security-lab"
-version = "0.7.0"
-description = "Reproducible security labs for GenAI and agentic AI systems."
+version = "0.8.0"
+description = "Open-source GenAI and agentic AI security platform for learning, career simulations, and application assessment."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache-2.0" }
@@ -35,4 +35,4 @@ testpaths = ["tests"]
 addopts = "-ra"
 
 [tool.setuptools.package-data]
-agentic_ai_security_lab = ["console_assets/*"]
+agentic_ai_security_lab = ["console_assets/*", "vm_blueprints/*/*"]

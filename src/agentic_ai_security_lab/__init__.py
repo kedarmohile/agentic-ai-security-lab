@@ -1,3 +1,3 @@
-"""Reproducible security labs for GenAI and agentic AI systems."""
+"""Open-source GenAI and agentic AI security learning and assessment platform."""
 
-__version__ = "0.7.0"
+__version__ = "0.8.0"

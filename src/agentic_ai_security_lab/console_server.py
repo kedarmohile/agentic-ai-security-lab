@@ -14,7 +14,9 @@ from typing import Any
 from urllib.parse import urlparse
 
 from .orchestration import RunStore, catalog, execute_lab, status
-from .product_experiences import TargetRegistry, academy_catalog, academy_progress, career_catalog, interview_session
+from .product_experiences import ROLE_TRACKS, TargetRegistry, academy_catalog, academy_progress, career_catalog, interview_session
+from .career_simulations import CareerAttemptStore, career_simulation_catalog, evaluate_interview_answer, evaluate_simulation_task
+from .vm_runtime import MultipassRuntime, blueprint_for_scenario, vm_catalog
 
 
 def _asset_root() -> Any:
@@ -22,7 +24,7 @@ def _asset_root() -> Any:
 
 
 class ConsoleHandler(BaseHTTPRequestHandler):
-    server_version = "AASLConsole/0.7"
+    server_version = "AASLConsole/0.8"
 
     @property
     def store(self) -> RunStore:
@@ -31,6 +33,14 @@ class ConsoleHandler(BaseHTTPRequestHandler):
     @property
     def targets(self) -> TargetRegistry:
         return TargetRegistry(self.store.state_dir)
+
+    @property
+    def career_attempts(self) -> CareerAttemptStore:
+        return CareerAttemptStore(self.store.state_dir)
+
+    @property
+    def vm_runtime(self) -> MultipassRuntime:
+        return MultipassRuntime()
 
     def _json(self, payload: Any, status_code: int = HTTPStatus.OK) -> None:
         raw = json.dumps(payload).encode("utf-8")
@@ -78,6 +88,14 @@ class ConsoleHandler(BaseHTTPRequestHandler):
         if path == "/api/career":
             self._json(career_catalog())
             return
+        if path == "/api/career/attempts":
+            self._json({"attempts": self.career_attempts.attempts()})
+            return
+        if path == "/api/vm/catalog":
+            payload = vm_catalog()
+            payload["host"] = self.vm_runtime.host_info()
+            self._json(payload)
+            return
         if path == "/api/targets":
             self._json({"targets": self.targets.targets(), "runs": self.targets.target_runs()})
             return
@@ -107,6 +125,65 @@ class ConsoleHandler(BaseHTTPRequestHandler):
             if path == "/api/interview":
                 session = interview_session(str(payload.get("role_id")), str(payload.get("level", "senior")))
                 self._json(session, HTTPStatus.CREATED)
+                return
+            if path == "/api/career/simulations":
+                data = career_simulation_catalog(str(payload.get("role_id", "")) or None)
+                self._json(data, HTTPStatus.CREATED)
+                return
+            if path == "/api/career/evaluate-interview":
+                role_id = str(payload.get("role_id", ""))
+                role = next((r for r in ROLE_TRACKS if r["role_id"] == role_id), None)
+                if role is None:
+                    raise ValueError(f"unknown role: {role_id}")
+                result = evaluate_interview_answer(
+                    role,
+                    str(payload.get("level", "senior")),
+                    str(payload.get("dimension", "")),
+                    str(payload.get("question", "")),
+                    str(payload.get("answer", "")),
+                )
+                record = self.career_attempts.append("interview", result)
+                self._json(record, HTTPStatus.CREATED)
+                return
+            if path == "/api/career/evaluate-simulation":
+                result = evaluate_simulation_task(
+                    str(payload.get("scenario_id", "")),
+                    str(payload.get("task_id", "")),
+                    str(payload.get("answer", "")),
+                    int(payload.get("hints_used", 0)),
+                )
+                record = self.career_attempts.append("simulation", result)
+                self._json(record, HTTPStatus.CREATED)
+                return
+            if path == "/api/vm/status":
+                blueprint_id = str(payload.get("blueprint_id", ""))
+                result = self.vm_runtime.instance_status(blueprint_id)
+                result["shell_command"] = self.vm_runtime.shell_command(blueprint_id)
+                self._json(result, HTTPStatus.CREATED)
+                return
+            if path == "/api/vm/start":
+                blueprint_id = str(payload.get("blueprint_id", ""))
+                result = self.vm_runtime.start(blueprint_id, fresh=bool(payload.get("fresh", False)))
+                result["shell_command"] = self.vm_runtime.shell_command(blueprint_id)
+                self._json(result, HTTPStatus.CREATED)
+                return
+            if path == "/api/vm/reset":
+                blueprint_id = str(payload.get("blueprint_id", ""))
+                result = self.vm_runtime.reset(blueprint_id)
+                result["shell_command"] = self.vm_runtime.shell_command(blueprint_id)
+                self._json(result, HTTPStatus.CREATED)
+                return
+            if path == "/api/vm/stop":
+                blueprint_id = str(payload.get("blueprint_id", ""))
+                result = self.vm_runtime.stop(blueprint_id)
+                result["shell_command"] = self.vm_runtime.shell_command(blueprint_id)
+                self._json(result, HTTPStatus.CREATED)
+                return
+            if path == "/api/vm/destroy":
+                blueprint_id = str(payload.get("blueprint_id", ""))
+                result = self.vm_runtime.destroy(blueprint_id)
+                result["shell_command"] = self.vm_runtime.shell_command(blueprint_id)
+                self._json(result, HTTPStatus.CREATED)
                 return
             if path == "/api/targets":
                 target = self.targets.register(str(payload.get("name", "")), str(payload.get("source_type", "")), str(payload.get("location", "")))
@@ -172,12 +249,22 @@ def main() -> int:
         data = catalog()
         academy = academy_catalog()
         career = career_catalog()
+        vms = vm_catalog()
         if len(data["labs"]) != 5 or len(data["hunts"]) != 5:
             raise SystemExit("console catalog is incomplete")
         if len(academy["atlas_tactics"]) != 16:
             raise SystemExit("MITRE ATLAS tactic map is incomplete")
         if len(career["roles"]) < 24:
             raise SystemExit("Career Lab role catalog is incomplete")
+        frameworks = career.get("frameworks", {})
+        if len(frameworks.get("owasp_web_2025", {}).get("items", [])) != 10:
+            raise SystemExit("OWASP Web framework catalog is incomplete")
+        if len(frameworks.get("owasp_llm_2026", {}).get("items", [])) != 10:
+            raise SystemExit("OWASP LLM framework catalog is incomplete")
+        if len(frameworks.get("owasp_agentic_2026", {}).get("items", [])) != 10:
+            raise SystemExit("OWASP Agentic framework catalog is incomplete")
+        if len(vms["blueprints"]) < 3:
+            raise SystemExit("Career Lab VM blueprint catalog is incomplete")
         print("security console assets and catalog: ok")
         return 0
 

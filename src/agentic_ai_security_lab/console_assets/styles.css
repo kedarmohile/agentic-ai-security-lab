@@ -289,3 +289,77 @@ select, input { font-size: 16px; padding: 12px; }
   .mission-row{grid-template-columns:1fr}
   .mission-state,.mission-xp{text-align:left}
 }
+
+
+/* v2.1 Career Lab: interactive interview + simulation range */
+.career-mode-tabs{display:flex;gap:8px;margin:0 0 14px}
+.career-mode-tab{border:1px solid var(--border);background:#0b1218;color:#8796a2;padding:11px 16px;border-radius:5px;cursor:pointer;font-size:14px;font-weight:700}
+.career-mode-tab:hover{color:#d9e7ee;border-color:#3c4d59}.career-mode-tab.active{color:#e9fbff;border-color:#4b7b86;background:#102027;box-shadow:inset 0 -2px var(--cyan)}
+.career-workspace{min-width:0}.career-mode-panel{display:none}.career-mode-panel.active{display:block}
+.answer-editor{width:100%;resize:vertical;min-height:150px;margin-top:12px;background:#070d12;border:1px solid #31404c;color:#e3edf4;font-size:15px;line-height:1.6;padding:13px;border-radius:5px}
+.answer-editor:focus{outline:none;border-color:#4d7f89;box-shadow:0 0 0 2px rgba(69,215,232,.08)}
+.answer-actions{display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap}
+.interview-instructions{border-left:3px solid var(--cyan);background:#091117;padding:12px 14px;color:#95a5b1;font-size:13px;line-height:1.55;margin-bottom:12px}
+.interactive-question{padding:17px}.evaluation-result{display:none;margin-top:13px;border-top:1px solid #26343f;padding-top:13px}.evaluation-result.visible{display:block}
+.evaluation-head{display:grid;grid-template-columns:minmax(190px,.45fr) minmax(0,1fr);gap:14px;align-items:center;margin-bottom:12px}
+.evaluation-head strong{display:block;margin-top:4px;font:18px var(--mono);color:#e8f4f7}.score-meter{height:8px;background:#17232c;overflow:hidden}.score-meter i{display:block;height:100%;background:linear-gradient(90deg,var(--red),var(--amber),var(--green))}
+.feedback-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.feedback-grid>div,.model-answer,.next-step{border:1px solid #27343f;background:#091016;padding:12px}
+.feedback-title{font:10px var(--mono);color:#96a6b2;letter-spacing:.08em;margin-bottom:7px}.feedback-title.good{color:var(--green)}.feedback-title.improve{color:var(--amber)}
+.feedback-grid ul{margin:0;padding-left:18px;color:#9aa8b4;font-size:13px;line-height:1.5}.model-answer{margin-top:10px}.model-answer p{margin:0;color:#b3c0c9;font-size:14px;line-height:1.65}.next-step{margin-top:10px;color:#8fa0ac;font-size:13px}
+.simulation-controls{display:grid;grid-template-columns:1fr 1.3fr auto;gap:10px;align-items:end}.simulation-workspace{margin-top:15px}
+.scenario-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}.scenario-head h2{margin:4px 0;font-size:24px}.scenario-meta{color:#7b8b97;font:11px var(--mono)}
+.scenario-brief{color:#a5b2bc;font-size:14px;line-height:1.65;margin:13px 0}.scenario-objectives{border-left:3px solid #3e6974;background:#091117;padding:12px 14px;margin-bottom:14px}.scenario-objectives ul{margin:8px 0 0;padding-left:19px;color:#92a2ae;font-size:13px}
+.section-label{margin:18px 0 9px}.workbench{border:1px solid #2a3a45;background:#081015;padding:14px;margin:14px 0}.workbench-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px}
+.search-results{margin-top:10px;max-height:240px;overflow:auto;border-top:1px solid #1f2d36}.search-hit{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px;padding:8px 4px;border-bottom:1px solid #17232c}.search-hit span{color:#6f808c;font:10px var(--mono)}.search-hit code{color:#b7c9d4;font:12px/1.5 var(--mono);white-space:pre-wrap;overflow-wrap:anywhere}
+.artifact-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.artifact-card{border:1px solid #27343f;background:#090f14;min-width:0}.artifact-head{display:flex;align-items:center;gap:9px;border-bottom:1px solid #26343f;padding:9px 11px}.artifact-head span{color:var(--cyan);font:9px var(--mono)}.artifact-head b{font-size:12px}.artifact-card pre{margin:0;padding:12px;max-height:310px;overflow:auto;color:#aebdc7;font:12px/1.6 var(--mono);white-space:pre-wrap;overflow-wrap:anywhere}
+.simulation-task-list{display:grid;gap:12px}.simulation-task{border:1px solid #2a3944;background:#0a1117;padding:16px}.simulation-task h3{font-size:17px;margin:6px 0}.simulation-task>p{color:#9eacb7;font-size:14px;line-height:1.6}
+.hint-panel{display:grid;gap:6px;margin:10px 0 0}.hint-item{border-left:2px solid var(--amber);background:#151108;padding:9px 11px;display:grid;grid-template-columns:65px 1fr;gap:10px}.hint-item b{color:var(--amber);font:10px var(--mono)}.hint-item span{color:#a99d87;font-size:12px;line-height:1.45}
+
+@media(max-width:900px){.simulation-controls,.evaluation-head,.feedback-grid,.artifact-grid,.workbench-controls{grid-template-columns:1fr}.search-hit{grid-template-columns:1fr}}
+
+
+/* v2.1 framework crosswalk + portable VM controls */
+.framework-catalogs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.framework-card{border:1px solid #293842;background:#091016;padding:14px;min-width:0}
+.framework-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.framework-head h3{font-size:16px;margin:4px 0 0}
+.framework-items{display:grid;gap:5px;margin-top:11px;max-height:280px;overflow:auto}
+.framework-item{display:grid;grid-template-columns:92px minmax(0,1fr);gap:8px;padding:6px 0;border-top:1px solid #17242d}
+.framework-item b{font:10px var(--mono);color:var(--cyan)}
+.framework-item span{font-size:12px;color:#8e9da8}
+.atlas-mapping{border:1px solid #293842;background:#081015;padding:13px;margin:12px 0}
+.scenario-map-group{margin-top:10px}
+.scenario-map-group:first-of-type{margin-top:7px}
+.atlas-technique-row{display:flex;flex-wrap:wrap;gap:6px}
+.atlas-technique{display:inline-flex;gap:6px;align-items:center;border:1px solid #31404b;background:#0b141a;padding:5px 7px;color:#9fadb7;font-size:11px}
+.atlas-technique b{font:10px var(--mono);color:#c5eef3}
+.scenario-map-group.owasp-web .atlas-technique{border-color:#4c4531}
+.scenario-map-group.owasp-llm .atlas-technique{border-color:#3c5366}
+.scenario-map-group.owasp-agentic .atlas-technique{border-color:#594264}
+.scenario-map-group.mitre-atlas .atlas-technique{border-color:#315e52}
+.vm-panel{border:1px solid #37505a;background:#091218;padding:14px;margin:12px 0;display:grid;grid-template-columns:minmax(220px,.7fr) minmax(0,1fr);gap:12px}
+.vm-panel>div:first-child strong{display:block;font-size:14px;margin:6px 0;color:#d7eef2}
+.vm-panel>div:first-child span{display:block;color:#7e909c;font:10px var(--mono)}
+.vm-actions{display:flex;flex-wrap:wrap;gap:7px;align-items:start}
+.vm-host-status{grid-column:1/-1;padding:9px 11px;border-left:2px solid #566873;background:#071015;color:#899aa6;font-size:12px}
+.vm-host-status.ready{border-left-color:var(--green);color:#99cdb5}
+.vm-host-status.missing{border-left-color:var(--amber);color:#baa781}
+.vm-status-box{grid-column:1/-1;display:grid;gap:6px}
+.vm-status-line{display:grid;grid-template-columns:90px minmax(0,1fr);gap:8px;border-top:1px solid #1e2d36;padding-top:6px}
+.vm-status-line span,.vm-shell-command span{color:#6e808c;font:9px var(--mono)}
+.vm-status-line b{font:11px var(--mono);color:#c0d0d9}
+.vm-shell-command{border:1px solid #263741;background:#061015;padding:9px;display:grid;gap:5px}
+.vm-shell-command code{font:12px var(--mono);color:#c8edf2;overflow-wrap:anywhere}
+
+@media(max-width:900px){.framework-catalogs,.vm-panel{grid-template-columns:1fr}.vm-host-status,.vm-status-box{grid-column:auto}}
+
+
+/* v2.1 readability floor for simulation metadata */
+.framework-item b{font-size:11px}.framework-item span{font-size:13px}
+.feedback-title{font-size:11px}
+.atlas-technique{font-size:12px}.atlas-technique b{font-size:11px}
+.scenario-meta{font-size:12px}
+.search-hit span{font-size:11px}.search-hit code{font-size:13px}
+.artifact-head span{font-size:10px}.artifact-head b{font-size:13px}.artifact-card pre{font-size:13px}
+.hint-item b{font-size:11px}.hint-item span{font-size:13px}
+.vm-panel>div:first-child span{font-size:11px}.vm-status-line span,.vm-shell-command span{font-size:10px}.vm-shell-command code{font-size:13px}
