@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from scripts.check_links import discover_external_urls, validate_internal_links
+from agentic_ai_security_lab.link_check import discover_external_urls, validate_internal_links
 
 
 def test_all_internal_repository_links_resolve() -> None:
