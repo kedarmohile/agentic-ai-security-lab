@@ -239,6 +239,31 @@ All identities, credentials, services, and actions are synthetic. The service ru
 
 See the [Lab 05 threat model](docs/lab05-threat-model.md) and [result schema](schema/lab05-result.schema.json).
 
+## Security Console
+
+The repository includes a local **Agentic AI Security Console** for orchestrating Labs 01-05 as hunts, preserving run history, generating findings from deterministic lab results, and presenting attack-path evidence.
+
+Install the repo in editable mode, then run:
+
+    python -m pip install -e ".[dev]"
+    agentic-ai-console
+
+Open `http://127.0.0.1:8765`.
+
+The console includes:
+
+- Command Center with live posture and assessment coverage
+- guided Hunts with objectives, steps, difficulty, controls, and points
+- lab/scenario runner wired directly to the Python implementations
+- explainable Control, Exposure, and Evidence scores
+- Findings generated only when lab evidence supports them
+- attack-path visualization
+- run timeline and evidence drill-down
+- local JSONL run/case persistence
+- command palette (`Cmd/Ctrl + K`)
+- no external frontend CDN or cloud dependency
+
+See [Security Console Architecture](docs/security-console.md) and [Scoring Model](docs/console-scoring.md).
 ## Repository principles
 
 - **Reproducible over impressive** — tests should run without proprietary infrastructure where possible.
