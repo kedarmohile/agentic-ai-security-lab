@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agentic-ai-security-lab"
-version = "0.10.0"
+version = "0.10.1"
 description = "Open-source GenAI and agentic AI security platform for learning, career simulations, and application assessment."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -17,6 +17,9 @@ dependencies = []
 [project.optional-dependencies]
 dev = [
   "pytest>=8.0"
+]
+ui = [
+  "playwright>=1.56,<2"
 ]
 
 [project.scripts]
