@@ -188,3 +188,38 @@ def test_v2_product_apis(tmp_path: Path) -> None:
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
+
+
+def test_v2_repository_docs_are_aligned_with_product() -> None:
+    from pathlib import Path
+
+    readme = Path("README.md").read_text(encoding="utf-8")
+    architecture = Path("docs/security-console.md").read_text(encoding="utf-8")
+    target_guide = Path("docs/test-your-app.md").read_text(encoding="utf-8")
+    scoring = Path("docs/console-scoring.md").read_text(encoding="utf-8")
+
+    assert "Academy" in readme
+    assert "Career Lab" in readme
+    assert "Target Lab" in readme
+    assert "127.0.0.1:8877" in readme
+
+    assert "/api/academy" in architecture
+    assert "/api/career" in architecture
+    assert "/api/targets" in architecture
+    assert "127.0.0.1:8877" in architecture
+
+    assert "future extension" not in target_guide
+    assert "Clone & Analyze" in target_guide
+    assert ".aasl/target.json" in target_guide
+
+    assert "Academy XP and ranks" in scoring
+    assert "Target Lab results" in scoring
+
+    for path in (
+        "docs/academy.md",
+        "docs/career-lab.md",
+        "docs/target-lab.md",
+        "docs/product-reference-models.md",
+        "docs/target-manifest.md",
+    ):
+        assert Path(path).is_file()
