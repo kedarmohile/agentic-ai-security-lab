@@ -14,9 +14,6 @@ def test_expected_external_destinations_are_discoverable() -> None:
     expected = {
         "https://github.com/NVIDIA/garak/issues/2453",
         "https://github.com/elastic/detection-rules/issues/6722",
-        "https://www.hackthebox.com/business/enterprise-platform",
-        "https://www.immersivelabs.com/solutions/cyber-resilience-metrics",
-        "https://www.immersivelabs.com/platform",
         "https://atlas.mitre.org/",
         "https://www.nist.gov/itl/applied-cybersecurity/nice/nice-framework-resource-center",
         "https://multipass.run/",
@@ -30,3 +27,25 @@ def test_console_hyperlink_assets_exist() -> None:
     root = Path("src/agentic_ai_security_lab/console_assets")
     for asset in ("shield.svg", "styles.css", "app.js", "index.html"):
         assert (root / asset).is_file()
+
+
+
+def test_customer_facing_repo_does_not_link_to_competing_training_platforms() -> None:
+    urls = set(discover_external_urls())
+    blocked_hosts = {
+        "hackthebox.com",
+        "www.hackthebox.com",
+        "tryhackme.com",
+        "www.tryhackme.com",
+        "letsdefend.io",
+        "app.letsdefend.io",
+        "immersivelabs.com",
+        "www.immersivelabs.com",
+    }
+
+    from urllib.parse import urlparse
+
+    assert not {
+        url for url in urls
+        if (urlparse(url).hostname or "").lower() in blocked_hosts
+    }

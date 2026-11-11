@@ -11,6 +11,7 @@ from agentic_ai_security_lab.product_experiences import (
     academy_progress,
     career_catalog,
     interview_session,
+    pricing_catalog,
 )
 
 
@@ -57,13 +58,31 @@ def test_academy_progress_requires_secure_and_vulnerable_evidence(tmp_path: Path
     assert progress["xp"] >= mission["xp"]
 
 
-def test_commercial_reference_patterns_are_explicitly_unaffiliated() -> None:
+def test_academy_uses_aasl_product_principles_without_competitor_urls() -> None:
     refs = academy_catalog()["references"]
-    names = {ref["name"] for ref in refs}
 
-    assert "Hack The Box Enterprise" in names
-    assert "Immersive" in names
-    assert all("not affiliated" in ref["note"].lower() for ref in refs)
+    assert len(refs) >= 2
+    assert all("url" not in ref for ref in refs)
+    serialized = json.dumps(refs).lower()
+    assert "hack the box" not in serialized
+    assert "immersive" not in serialized
+
+
+def test_pricing_catalog_has_sustainable_launch_ladder() -> None:
+    data = pricing_catalog()
+    plans = {plan["plan_id"]: plan for plan in data["plans"]}
+
+    assert data["currency"] == "USD"
+    assert data["billing_live"] is False
+
+    assert plans["free"]["monthly"] == 0
+    assert plans["core"]["monthly"] == 9
+    assert plans["core"]["annual"] == 89
+    assert plans["pro"]["monthly"] == 29
+    assert plans["pro"]["annual"] == 249
+    assert plans["pro"]["status"] == "hosted-labs-coming-soon"
+    assert any("one concurrent hosted lab" in feature.lower() for feature in plans["pro"]["features"])
+    assert any("300 hours/year" in feature.lower() for feature in plans["pro"]["features"])
 
 
 def test_career_lab_has_broad_security_role_coverage() -> None:

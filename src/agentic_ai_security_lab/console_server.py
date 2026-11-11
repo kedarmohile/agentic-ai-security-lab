@@ -14,7 +14,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 from .orchestration import RunStore, catalog, execute_lab, status
-from .product_experiences import LEVEL_PROFILES, ROLE_TRACKS, TargetRegistry, academy_catalog, academy_progress, career_catalog, interview_session
+from .product_experiences import LEVEL_PROFILES, ROLE_TRACKS, TargetRegistry, academy_catalog, academy_progress, career_catalog, interview_session, pricing_catalog
 from .career_simulations import CareerAttemptStore, career_simulation_catalog, evaluate_interview_answer, evaluate_simulation_task
 from .vm_runtime import MultipassRuntime, blueprint_for_scenario, vm_catalog
 from .model_evaluator import evaluate_with_openai, evaluator_status
@@ -25,7 +25,7 @@ def _asset_root() -> Any:
 
 
 class ConsoleHandler(BaseHTTPRequestHandler):
-    server_version = "AASLConsole/0.9.1"
+    server_version = "AASLConsole/0.10"
 
     @property
     def store(self) -> RunStore:
@@ -88,6 +88,9 @@ class ConsoleHandler(BaseHTTPRequestHandler):
             return
         if path == "/api/career":
             self._json(career_catalog())
+            return
+        if path == "/api/pricing":
+            self._json(pricing_catalog())
             return
         if path == "/api/career/attempts":
             self._json({"attempts": self.career_attempts.attempts()})

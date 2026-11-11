@@ -100,8 +100,10 @@ def test_console_assets_are_served_without_external_cdn(tmp_path: Path) -> None:
         assert "Interview Studio" in html
         assert "Simulation Range" in html
         assert "Target Lab" in html
+        assert "AASL PRICING" in html
+        assert "id=\"pricing-cards\"" in html
         assert "SECURITY FRAMEWORK STACK" in html
-        assert "COMMERCIAL REFERENCE" in html
+        assert "AASL PRODUCT PRINCIPLES" in html
         assert "MITRE ATLAS COVERAGE MAP" in html
         assert "WHAT THIS PLATFORM DOES" in html
         assert "TEST YOUR OWN APPLICATION" in html
@@ -113,6 +115,8 @@ def test_console_assets_are_served_without_external_cdn(tmp_path: Path) -> None:
         assert "/api/career/evaluate-interview" in js
         assert "/api/career/evaluate-simulation" in js
         assert "/api/vm/start" in js
+        assert "/api/pricing" in js
+        assert "renderPricing" in js
     finally:
         server.shutdown()
         server.server_close()
@@ -147,6 +151,15 @@ def test_v2_product_apis(tmp_path: Path) -> None:
         with urllib.request.urlopen(f"{base}/api/academy") as response:
             academy = json.loads(response.read().decode("utf-8"))
         assert len(academy["atlas_tactics"]) == 16
+
+        with urllib.request.urlopen(f"{base}/api/pricing") as response:
+            pricing = json.loads(response.read().decode("utf-8"))
+        plans = {plan["plan_id"]: plan for plan in pricing["plans"]}
+        assert plans["core"]["monthly"] == 9
+        assert plans["core"]["annual"] == 89
+        assert plans["pro"]["monthly"] == 29
+        assert plans["pro"]["annual"] == 249
+        assert pricing["billing_live"] is False
 
         with urllib.request.urlopen(f"{base}/api/career") as response:
             career = json.loads(response.read().decode("utf-8"))
@@ -301,6 +314,7 @@ def test_v2_repository_docs_are_aligned_with_product() -> None:
     frameworks = Path("docs/security-frameworks.md").read_text(encoding="utf-8")
     vm_labs = Path("docs/vm-labs.md").read_text(encoding="utf-8")
     ui_design = Path("docs/ui-design-system.md").read_text(encoding="utf-8")
+    pricing = Path("docs/pricing.md").read_text(encoding="utf-8")
 
     assert "Academy" in readme
     assert "Career Lab" in readme
@@ -336,6 +350,12 @@ def test_v2_repository_docs_are_aligned_with_product() -> None:
     assert "--type-body" in ui_design
     assert "No intentional UI text" in ui_design
 
+    assert "$9" in pricing
+    assert "$89" in pricing
+    assert "$29" in pricing
+    assert "$249" in pricing
+    assert "one concurrent hosted lab" in pricing.lower()
+
     for path in (
         "docs/academy.md",
         "docs/career-lab.md",
@@ -345,5 +365,20 @@ def test_v2_repository_docs_are_aligned_with_product() -> None:
         "docs/target-lab.md",
         "docs/product-reference-models.md",
         "docs/target-manifest.md",
+        "docs/pricing.md",
     ):
         assert Path(path).is_file()
+
+
+
+def test_customer_facing_console_does_not_route_to_competing_training_platforms() -> None:
+    html = Path("src/agentic_ai_security_lab/console_assets/index.html").read_text(encoding="utf-8").lower()
+    js = Path("src/agentic_ai_security_lab/console_assets/app.js").read_text(encoding="utf-8").lower()
+    combined = html + "\n" + js
+
+    for blocked in ("hackthebox", "tryhackme", "letsdefend", "immersivelabs"):
+        assert blocked not in combined
+
+    assert "aasl pricing" in html
+    assert 'id="pricing-cards"' in html
+    assert 'id="pricing-button"' in html

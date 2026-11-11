@@ -81,22 +81,127 @@ ATLAS_TACTICS: tuple[dict[str, Any], ...] = (
 )
 
 
-COMMERCIAL_REFERENCES: tuple[dict[str, Any], ...] = (
+PRODUCT_PRINCIPLES: tuple[dict[str, Any], ...] = (
     {
-        "name": "Hack The Box Enterprise",
-        "purpose": "Commercial learning / readiness pattern",
-        "pattern": "Assess → Build → Drill → Measure → Repeat",
-        "note": "Reference pattern only; AASL is not affiliated with Hack The Box.",
-        "url": "https://www.hackthebox.com/business/enterprise-platform",
+        "name": "Practice before proof",
+        "purpose": "Learning model",
+        "pattern": "Learn → Drill → Validate → Improve",
+        "note": "Every score should be backed by an executed exercise or evaluated attempt.",
     },
     {
-        "name": "Immersive",
-        "purpose": "Framework coverage / evidence pattern",
-        "pattern": "Hands-on exercises + resilience scoring + MITRE ATLAS readiness heatmap",
-        "note": "Reference pattern only; AASL is not affiliated with Immersive.",
-        "url": "https://www.immersivelabs.com/solutions/cyber-resilience-metrics",
+        "name": "Framework coverage without greenwashing",
+        "purpose": "Readiness model",
+        "pattern": "Map what exists. Show the gaps. Build the next mission.",
+        "note": "AASL distinguishes current mission coverage from roadmap coverage.",
     },
 )
+
+
+PRICING_PLANS: tuple[dict[str, Any], ...] = (
+    {
+        "plan_id": "free",
+        "name": "Free",
+        "audience": "Explore the platform",
+        "monthly": 0,
+        "annual": 0,
+        "status": "available",
+        "badge": "START HERE",
+        "highlight": False,
+        "features": (
+            "Selected Academy missions and reference labs",
+            "Deterministic local answer evaluation",
+            "Browser voice where supported",
+            "Local simulations and evidence",
+            "Open-source local console",
+        ),
+        "cta": "Start Free",
+        "cta_view": "start",
+    },
+    {
+        "plan_id": "core",
+        "name": "Core",
+        "audience": "Learn, prepare, and practice deeply",
+        "monthly": 9,
+        "annual": 89,
+        "status": "launch",
+        "badge": "BEST VALUE",
+        "highlight": True,
+        "features": (
+            "Full Academy and learning paths",
+            "All Career Lab role tracks",
+            "Interview Studio + Simulation Range",
+            "GenAI mastery coaching under fair-use limits",
+            "Interviewer personas and browser voice",
+            "Local Multipass VM labs",
+            "Target Lab for local and GitHub projects",
+            "Progress, evidence, retries, and mastery history",
+            "Unlimited learning content and local practice",
+        ),
+        "cta": "Explore Core",
+        "cta_view": "career",
+    },
+    {
+        "plan_id": "pro",
+        "name": "Pro",
+        "audience": "Add hosted lab infrastructure",
+        "monthly": 29,
+        "annual": 249,
+        "status": "hosted-labs-coming-soon",
+        "badge": "HOSTED LABS",
+        "highlight": False,
+        "features": (
+            "Everything in Core",
+            "One concurrent hosted lab environment",
+            "30 hosted hours/month or 300 hours/year",
+            "Unlimited lab launches within included compute",
+            "Browser terminal and clean lab resets",
+            "Advanced GenAI / Agentic AI ranges",
+            "Hosted OWASP + MITRE ATLAS mission environments",
+            "Automatic TTL and idle shutdown",
+        ),
+        "cta": "Preview Pro",
+        "cta_view": "career",
+    },
+    {
+        "plan_id": "teams",
+        "name": "Teams",
+        "audience": "Managed readiness for organizations",
+        "monthly": None,
+        "annual": None,
+        "status": "roadmap",
+        "badge": "ROADMAP",
+        "highlight": False,
+        "features": (
+            "Managed seats and assigned learning paths",
+            "Team readiness and framework coverage dashboards",
+            "Private missions and organization-specific content",
+            "Central reporting and governance",
+            "SSO and enterprise administration",
+            "Managed cloud ranges and private target integrations",
+        ),
+        "cta": "View Target Lab",
+        "cta_view": "target",
+    },
+)
+
+
+def pricing_catalog() -> dict[str, Any]:
+    return {
+        "currency": "USD",
+        "billing_live": False,
+        "plans": [
+            {
+                **{k: v for k, v in plan.items() if k != "features"},
+                "features": list(plan["features"]),
+            }
+            for plan in PRICING_PLANS
+        ],
+        "principles": {
+            "core_unlimited": "Unlimited learning content and local practice; cloud compute is separate.",
+            "pro_compute": "Hosted Pro includes one concurrent environment and a compute allowance so infrastructure cost remains bounded.",
+            "annual_value": "Annual pricing is discounted relative to paying monthly for twelve months.",
+        },
+    }
 
 
 LEVEL_PROFILES: dict[str, dict[str, str]] = {
@@ -303,7 +408,7 @@ def academy_catalog() -> dict[str, Any]:
             for path in ACADEMY_PATHS
         ],
         "atlas_tactics": list(ATLAS_TACTICS),
-        "references": list(COMMERCIAL_REFERENCES),
+        "references": list(PRODUCT_PRINCIPLES),
         "frameworks": framework_catalog(),
     }
 
