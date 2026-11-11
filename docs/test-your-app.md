@@ -59,7 +59,7 @@ The test should preserve the same:
 | Lab 04 | Wrapper required | Your delegation / principal-to-agent authorization path |
 | Lab 05 | Wrapper required | Your identity/token issue + service authorization path |
 
-The console currently executes the built-in deterministic scenarios. External-target registration in the UI is a future extension. You can already run target-mode tests from Python and then use the same result/evidence conventions.
+Target Lab now supports **local-path and GitHub target registration directly in the UI**. It can analyze likely security surfaces, map compatible Labs 01-05, shallow-clone GitHub targets on request, and create an adapter scaffold. Active target execution still requires an explicit trusted `.aasl/target.json` manifest; AASL does not silently execute arbitrary repository code.
 
 ## Lab 01 — working target adapter pattern
 
@@ -213,14 +213,19 @@ Keep **credential exposure** separate from **successful unauthorized use**.
 
 For each real application:
 
-1. Pick one boundary.
-2. Run the built-in secure and vulnerable reference scenarios.
-3. Implement the thin adapter/wrapper for your application.
-4. Run in a test or disposable environment.
-5. Preserve the positive control.
-6. Capture only the evidence required to prove the result.
-7. Map the result into the same verdict and severity semantics.
-8. Add a regression test to your CI.
+1. Open **Target Lab**.
+2. Register a local path or GitHub URL.
+3. For GitHub targets, choose **Clone & Analyze**.
+4. Review detected capability signals and compatible labs.
+5. Run the built-in secure and vulnerable reference scenarios for the relevant boundary.
+6. Choose **Create Adapter Scaffold** for the target.
+7. Implement the target-specific adapter in `security/aasl/`.
+8. Add the trusted command to `.aasl/target.json`.
+9. Run the target test from Target Lab in a test or disposable environment.
+10. Preserve positive controls and only the evidence required to prove the result.
+11. Add the target invariant as a regression test in the application's CI.
+
+See [Target Adapter Manifest](target-manifest.md) for the execution contract.
 
 ## Example target directory
 

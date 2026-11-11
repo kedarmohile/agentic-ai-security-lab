@@ -1,8 +1,14 @@
 # Agentic AI Security Lab
 
-Reproducible, evidence-oriented security labs for GenAI and agentic AI systems.
+An open-source **agentic AI security platform** for hands-on learning, security-career preparation, and evidence-driven testing of your own applications.
 
-The goal of this repository is to turn AI-security claims into **small, inspectable tests** with explicit threat models, deterministic controls, structured results, and regression coverage.
+AASL combines three product experiences on top of the same security engine:
+
+- **Academy** — missions, learning paths, XP/ranks, labs, hunts, and MITRE ATLAS coverage visibility.
+- **Career Lab** — interview preparation across cybersecurity roles and seniority levels.
+- **Target Lab** — register a local or GitHub repository, discover likely security surfaces, and run explicitly configured AASL target adapters.
+
+Underneath those experiences, the repository keeps the original principle: turn AI-security claims into **small, inspectable tests** with explicit threat models, deterministic controls, structured results, and regression coverage.
 
 ## Labs
 
@@ -271,7 +277,16 @@ The operations console still includes:
 - command palette (`Cmd/Ctrl + K`)
 - no external frontend CDN or cloud dependency
 
-See [Security Console Architecture](docs/security-console.md), [Scoring Model](docs/console-scoring.md), [Test Your Own Application](docs/test-your-app.md), [Target Adapter Manifest](docs/target-manifest.md), and [Product Reference Models](docs/product-reference-models.md).
+Product documentation:
+
+- [Platform / Console Architecture](docs/security-console.md)
+- [Academy](docs/academy.md)
+- [Career Lab](docs/career-lab.md)
+- [Target Lab](docs/target-lab.md)
+- [Scoring Model](docs/console-scoring.md)
+- [Test Your Own Application](docs/test-your-app.md)
+- [Target Adapter Manifest](docs/target-manifest.md)
+- [Product Reference Models](docs/product-reference-models.md)
 
 The console starts with a **Start Here** page that explains the workflow. The built-in console runs the deterministic reference harnesses; testing your own code requires connecting your application boundary through the documented adapter/wrapper pattern. Lab 01 is directly pluggable today.
 ## Repository principles
