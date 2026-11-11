@@ -32,6 +32,14 @@ Fix:
 - all iterable selectors now use exactly the double-dollar helper;
 - CI rejects both 3+ dollar selector helpers and single-selector forEach patterns.
 
+### Simulation voice button rendered without a handler — FIXED
+
+The Simulation Range voice button existed visually but was not wired to the dictation function. The handler is now attached and covered by the feature contract / browser acceptance suite.
+
+### Lower sidebar actions unreachable on smaller viewports — FIXED
+
+Chromium acceptance found that lower nav items such as Attack Graph could sit outside the clickable viewport because the fixed sidebar nav did not own an overflow region. The sidebar navigation is now independently scrollable while the footer remains fixed.
+
 ## Navigation and primary shell
 
 | Feature | Status | Destination / behavior |
