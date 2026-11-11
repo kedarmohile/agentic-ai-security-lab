@@ -1,0 +1,23 @@
+name: ui-acceptance
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  chromium:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install package + UI test dependencies
+        run: python -m pip install -e ".[dev,ui]"
+      - name: Install Chromium
+        run: python -m playwright install --with-deps chromium
+      - name: Paid acceptance browser audit
+        run: pytest -q tests_e2e
